@@ -1,0 +1,31 @@
+import { Routes, Route, Outlet } from "react-router-dom"
+import Home from "./pages/Home"
+import { ThemeProvider, CssBaseline } from "@mui/material"
+import { buildCustomTheme } from "./themes/Default"
+import React from "react"
+import Login from "./pages/Login"
+import { AuthProvider } from "./contexts/AuthContext"
+
+const theme = buildCustomTheme("light")
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Routes>
+        <Route
+          element={
+            <AuthProvider>
+              <Outlet />
+            </AuthProvider>
+          }
+        >
+          <Route path="/" element={<Home />} />
+        </Route>
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </ThemeProvider>
+  )
+}
+
+export default App
