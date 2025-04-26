@@ -1,26 +1,26 @@
-import React from "react"
-import { Box, Button, Menu, MenuItem, Typography } from "@mui/material"
-import MenuIcon from "@mui/icons-material/Menu"
-import LogoutIcon from "@mui/icons-material/Logout"
-import { useNavigate } from "react-router-dom"
+import React from "react";
+import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useNavigate } from "react-router-dom";
 
 export default function OptionsButton() {
-  const navigate = useNavigate()
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleClose = () => {
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("refresh")
-    navigate("/login")
-  }
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh");
+    navigate("/login");
+  };
 
   return (
     <div>
@@ -43,5 +43,5 @@ export default function OptionsButton() {
         </MenuItem>
       </Menu>
     </div>
-  )
+  );
 }

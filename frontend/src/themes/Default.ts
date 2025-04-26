@@ -1,5 +1,5 @@
-import { createTheme } from "@mui/material/styles"
-import { PaletteMode } from "@mui/material"
+import { createTheme } from "@mui/material/styles";
+import { PaletteMode } from "@mui/material";
 
 const baseColors = {
   generalBackground: "#FADADD",
@@ -22,7 +22,7 @@ const baseColors = {
     text: "#4B3B30",
     placeholder: "#C39A6B",
   },
-}
+};
 
 export const buildCustomTheme = (mode: PaletteMode) =>
   createTheme({
@@ -102,4 +102,4 @@ export const buildCustomTheme = (mode: PaletteMode) =>
         },
       },
     },
-  })
+  });

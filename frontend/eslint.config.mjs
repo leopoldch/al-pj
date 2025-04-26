@@ -74,7 +74,6 @@ export default defineConfig([
     },
     rules: {
       "prettier/prettier": "error",
-      semi: "off",
     },
   },
 ])

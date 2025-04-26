@@ -1,24 +1,24 @@
-import { useDeleteMessage, useGetAllMessages } from "../queries/messages"
-import { IconButton, Box } from "@mui/material"
-import DeleteIcon from "@mui/icons-material/Delete"
-import React from "react"
-import { useAuth } from "../hooks/useAuth"
+import { useDeleteMessage, useGetAllMessages } from "../queries/messages";
+import { IconButton, Box } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import React from "react";
+import { useAuth } from "../hooks/useAuth";
 
 function DisplayAllMessages() {
-  const { data: messages } = useGetAllMessages()
-  const deleteMessage = useDeleteMessage()
-  const { user } = useAuth()
+  const { data: messages } = useGetAllMessages();
+  const deleteMessage = useDeleteMessage();
+  const { user } = useAuth();
   const handleDelete = (id: number) => {
-    deleteMessage.mutate(id)
-  }
+    deleteMessage.mutate(id);
+  };
 
   if (!messages) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   const sortedMessages = [...messages].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  )
+  );
 
   return (
     <Box
@@ -81,7 +81,7 @@ function DisplayAllMessages() {
         ))
       )}
     </Box>
-  )
+  );
 }
 
-export default DisplayAllMessages
+export default DisplayAllMessages;

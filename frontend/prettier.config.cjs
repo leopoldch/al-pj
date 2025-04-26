@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-undef
 module.exports = {
-  semi: false,
+  semi: true,
   singleQuote: false,
   trailingComma: "es5",
   tabWidth: 2,

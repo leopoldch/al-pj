@@ -76,7 +76,7 @@ docker-compose up --build
 - [ ] Add a development container (`.devcontainer/`) for VSCode integration
 - [ ] Add a `TODO` command or page within the project for internal task tracking
 - [ ] Write full testing suites (unit and integration tests)
-- [ ] Set up CI/CD (Continuous Integration and Delivery)
+- [X] Set up CI/CD (Continuous Integration and Delivery)
 - [ ] Improve frontend responsiveness for mobile devices
 - [X] Implement user authentication and authorization
 - [X] Secure environment variables management (use `.env` file with Docker Compose)

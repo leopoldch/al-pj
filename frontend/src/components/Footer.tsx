@@ -1,8 +1,8 @@
 // footer
 
-import React from "react"
-import { Box, Typography } from "@mui/material"
-import { mainFontColor } from "../utils/constants"
+import React from "react";
+import { Box, Typography } from "@mui/material";
+import { mainFontColor } from "../utils/constants";
 function Footer() {
   return (
     <Box
@@ -21,6 +21,6 @@ function Footer() {
         © 2025 Aurianne Swchartz & Léopold Chappuis
       </Typography>
     </Box>
-  )
+  );
 }
-export default Footer
+export default Footer;
