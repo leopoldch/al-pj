@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Message
+from .models import Message, BucketPoint
 from django.contrib.auth.models import User
 
 
@@ -21,4 +21,17 @@ class MessageSerializer(serializers.ModelSerializer):
             validated_data["user"] = request.user
             validated_data["name"] = request.user.username
             validated_data["email"] = request.user.email
+        return super().create(validated_data)
+
+
+class BucketPointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BucketPoint
+        fields = ["id", "title", "description", "completed", "created_at"]
+        read_only_fields = ["created_at"]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and not request.user.is_authenticated:
+            return None
         return super().create(validated_data)
