@@ -8,37 +8,44 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+    env:
+      DEBUG: ${{ secrets.DEBUG }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+      ALLOWED_CORS: ${{ secrets.ALLOWED_CORS }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Clean old containers and volumes
-      run: |
-        echo "Stopping and removing old containers, networks, and volumes..."
-        docker-compose down --volumes --remove-orphans || true
-        docker system prune -f || true
+      - name: Clean old containers and volumes
+        run: |
+          echo "Stopping and removing old containers, networks, and volumes..."
+          docker-compose down --volumes --remove-orphans || true
+          docker system prune -f || true
 
-    - name: Generate .env file
-      run: |
-        mkdir -p ./backend
-        cat > ./backend/.env <<EOF
-        DEBUG=${{ secrets.DEBUG }}
-        SECRET_KEY=${{ secrets.SECRET_KEY }}
-        ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
-        ALLOWED_CORS=${{ secrets.ALLOWED_CORS }}
-        DATABASE_NAME=${{ secrets.DATABASE_NAME }}
-        DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
-        DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
-        DATABASE_HOST=${{ secrets.DATABASE_HOST }}
-        DATABASE_PORT=${{ secrets.DATABASE_PORT }}
-        MAIL_HOST=${{ secrets.MAIL_HOST }}
-        MAIL_PORT=${{ secrets.MAIL_PORT }}
-        MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-        MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-        EOF
-        echo ".env file created in ./backend/"
-
-    - name: Deploy with docker-compose
-      run: |
-        docker-compose up --build -d
+      - name: Deploy with docker-compose
+        run: |
+          DEBUG=${DEBUG} \
+          SECRET_KEY=${SECRET_KEY} \
+          ALLOWED_HOSTS=${ALLOWED_HOSTS} \
+          ALLOWED_CORS=${ALLOWED_CORS} \
+          DATABASE_NAME=${DATABASE_NAME} \
+          DATABASE_PASSWORD=${DATABASE_PASSWORD} \
+          DATABASE_USERNAME=${DATABASE_USERNAME} \
+          DATABASE_HOST=${DATABASE_HOST} \
+          DATABASE_PORT=${DATABASE_PORT} \
+          MAIL_HOST=${MAIL_HOST} \
+          MAIL_PORT=${MAIL_PORT} \
+          MAIL_USERNAME=${MAIL_USERNAME} \
+          MAIL_PASSWORD=${MAIL_PASSWORD} \
+          docker-compose up --build -d
