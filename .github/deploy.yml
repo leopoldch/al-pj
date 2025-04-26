@@ -1,0 +1,31 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy with docker-compose
+      run: |
+        DEBUG="${{ secrets.DEBUG }}" \
+        SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+        ALLOWED_HOSTS="${{ secrets.ALLOWED_HOSTS }}" \
+        ALLOWED_CORS="${{ secrets.ALLOWED_CORS }}" \
+        DATABASE_NAME="${{ secrets.DATABASE_NAME }}" \
+        DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
+        DATABASE_USERNAME="${{ secrets.DATABASE_USERNAME }}" \
+        DATABASE_HOST="${{ secrets.DATABASE_HOST }}" \
+        DATABASE_PORT="${{ secrets.DATABASE_PORT }}" \
+        MAIL_HOST="${{ secrets.MAIL_HOST }}" \
+        MAIL_PORT="${{ secrets.MAIL_PORT }}" \
+        MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
+        MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
+        docker-compose up --build -d
