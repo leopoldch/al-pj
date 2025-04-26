@@ -2,11 +2,16 @@ import React from "react";
 import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useNavigate } from "react-router-dom";
+import ChecklistIcon from "@mui/icons-material/Checklist";
+import HouseIcon from "@mui/icons-material/House";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function OptionsButton() {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const location = useLocation();
+
+  const isHomePage = location.pathname === "/";
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -22,6 +27,10 @@ export default function OptionsButton() {
     navigate("/login");
   };
 
+  function handleOptionClick(arg: string): void {
+    navigate(`/${arg}`);
+  }
+
   return (
     <div>
       <Button
@@ -33,13 +42,46 @@ export default function OptionsButton() {
         <MenuIcon />
       </Button>
       <Menu id="options-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        {/*<MenuItem onClick={() => handleOptionClick('photos')}><PhotoCameraIcon/></MenuItem>*/}
-        <MenuItem onClick={handleLogout}>
-          {
-            <Box sx={{ display: "flex", alignContent: "center", gap: "5px" }}>
-              <Typography>Déconnection</Typography> <LogoutIcon />
+        {!isHomePage && (
+          <MenuItem onClick={() => handleOptionClick("")}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "140px",
+              }}
+            >
+              <Typography>Home</Typography>
+              <HouseIcon />
             </Box>
-          }
+          </MenuItem>
+        )}
+        <MenuItem onClick={() => handleOptionClick("bucketpoints")}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "140px",
+            }}
+          >
+            <Typography>BucketsPoints</Typography>
+            <ChecklistIcon />
+          </Box>
+        </MenuItem>
+        <MenuItem onClick={handleLogout}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "140px",
+            }}
+          >
+            <Typography>Déconnection</Typography>
+            <LogoutIcon />
+          </Box>
         </MenuItem>
       </Menu>
     </div>

@@ -11,3 +11,13 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message from {self.name} at {self.created_at}"
+
+
+class BucketPoint(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
