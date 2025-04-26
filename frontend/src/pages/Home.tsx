@@ -1,11 +1,11 @@
 // landing page for the app
 
-import React from "react"
-import { Box } from "@mui/material"
+import React from "react";
+import { Box } from "@mui/material";
 
-import PageWrapper from "../components/PageWrapper"
-import MainInput from "../components/Input"
-import DisplayAllMessages from "../components/DisplayMessages"
+import PageWrapper from "../components/PageWrapper";
+import MainInput from "../components/Input";
+import DisplayAllMessages from "../components/DisplayMessages";
 
 function Home() {
   return (
@@ -24,6 +24,6 @@ function Home() {
         <DisplayAllMessages />
       </Box>
     </PageWrapper>
-  )
+  );
 }
-export default Home
+export default Home;

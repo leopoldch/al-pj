@@ -1,13 +1,13 @@
-import { Box } from "@mui/material"
-import React from "react"
-import { mainFontColor } from "../utils/constants"
-import { useNavigate } from "react-router-dom"
-import OptionsButton from "./OptionsButton"
+import { Box } from "@mui/material";
+import React from "react";
+import { mainFontColor } from "../utils/constants";
+import { useNavigate } from "react-router-dom";
+import OptionsButton from "./OptionsButton";
 
 function Header() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   function handleClick() {
-    navigate("/")
+    navigate("/");
   }
 
   return (
@@ -66,7 +66,7 @@ function Header() {
       </Box>
       <OptionsButton />
     </Box>
-  )
+  );
 }
 
-export default Header
+export default Header;

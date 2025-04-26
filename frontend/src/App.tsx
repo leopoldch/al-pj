@@ -1,12 +1,12 @@
-import { Routes, Route, Outlet } from "react-router-dom"
-import Home from "./pages/Home"
-import { ThemeProvider, CssBaseline } from "@mui/material"
-import { buildCustomTheme } from "./themes/Default"
-import React from "react"
-import Login from "./pages/Login"
-import { AuthProvider } from "./contexts/AuthContext"
+import { Routes, Route, Outlet } from "react-router-dom";
+import Home from "./pages/Home";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { buildCustomTheme } from "./themes/Default";
+import React from "react";
+import Login from "./pages/Login";
+import { AuthProvider } from "./contexts/AuthContext";
 
-const theme = buildCustomTheme("light")
+const theme = buildCustomTheme("light");
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
         <Route path="/login" element={<Login />} />
       </Routes>
     </ThemeProvider>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,18 +1,19 @@
-import { useMutation, UseMutationResult } from "@tanstack/react-query"
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
-import IUser from "../types/user"
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import IUser from "../types/user";
 import getBaseURL from "../utils/utils";
 
-const apiUrl = getBaseURL() + "/api/";
+const apiUrl =
+  process.env.NODE_ENV === "development" ? process.env.REACT_APP_API_URL : getBaseURL() + "/api/";
 
 interface LoginResponse {
-  refresh: string
-  access: string
+  refresh: string;
+  access: string;
 }
 
 interface LoginVariables {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
 export const useLogin = (): UseMutationResult<LoginResponse, Error, LoginVariables> => {
@@ -24,28 +25,28 @@ export const useLogin = (): UseMutationResult<LoginResponse, Error, LoginVariabl
           "Content-Type": "application/json",
         },
         body: JSON.stringify(variables),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to login")
+        throw new Error("Failed to login");
       }
 
-      const data = await response.json()
-      localStorage.setItem("token", data.access)
-      localStorage.setItem("refresh", data.refresh)
+      const data = await response.json();
+      localStorage.setItem("token", data.access);
+      localStorage.setItem("refresh", data.refresh);
 
-      return data
+      return data;
     },
-  })
-}
+  });
+};
 
 export const useGetProfile = (): UseQueryResult<IUser, Error> => {
   return useQuery<IUser, Error>({
     queryKey: ["profile"],
     queryFn: async () => {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       if (!token) {
-        throw new Error("No token found")
+        throw new Error("No token found");
       }
 
       const response = await fetch(apiUrl + "profile/", {
@@ -54,13 +55,13 @@ export const useGetProfile = (): UseQueryResult<IUser, Error> => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch profile")
+        throw new Error("Failed to fetch profile");
       }
 
-      return await response.json()
+      return await response.json();
     },
-  })
-}
+  });
+};

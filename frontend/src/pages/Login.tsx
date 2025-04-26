@@ -1,49 +1,49 @@
-import { Box, Card, TextField, Button, Typography } from "@mui/material"
-import React, { useEffect } from "react"
-import { useLogin } from "../queries/auth"
-import { useNavigate } from "react-router-dom"
-import Footer from "../components/Footer"
+import { Box, Card, TextField, Button, Typography } from "@mui/material";
+import React, { useEffect } from "react";
+import { useLogin } from "../queries/auth";
+import { useNavigate } from "react-router-dom";
+import Footer from "../components/Footer";
 
 function Login() {
-  const [username, setUsername] = React.useState("")
-  const [password, setPassword] = React.useState("")
-  const [error, setError] = React.useState("")
-  const loginMutation = useLogin() // <-- Doit être là
-  const navigate = useNavigate()
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [error, setError] = React.useState("");
+  const loginMutation = useLogin(); // <-- Doit être là
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleEnterKey: (e: KeyboardEvent) => void = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
-        handleSubmit(new Event("submit") as unknown as React.FormEvent)
+        handleSubmit(new Event("submit") as unknown as React.FormEvent);
       }
-    }
-    window.addEventListener("keydown", handleEnterKey)
+    };
+    window.addEventListener("keydown", handleEnterKey);
     return () => {
-      window.removeEventListener("keydown", handleEnterKey)
-    }
-  }, [username, password])
+      window.removeEventListener("keydown", handleEnterKey);
+    };
+  }, [username, password]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!username || !password) {
-      setError("Veuillez remplir tous les champs.")
-      return
+      setError("Veuillez remplir tous les champs.");
+      return;
     }
-    setError("")
+    setError("");
 
     loginMutation.mutate(
       { username, password },
       {
         onSuccess: () => {
-          navigate("/")
+          navigate("/");
         },
         onError: (error) => {
-          setError("Une erreur s'est produite lors de la connexion.")
-          console.error(error)
+          setError("Une erreur s'est produite lors de la connexion.");
+          console.error(error);
         },
       }
-    )
-  }
+    );
+  };
 
   return (
     <Box
@@ -109,7 +109,7 @@ function Login() {
       </Card>
       <Footer />
     </Box>
-  )
+  );
 }
 
-export default Login
+export default Login;

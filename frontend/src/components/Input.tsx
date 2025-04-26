@@ -1,30 +1,30 @@
-import React from "react"
-import { Box, TextField, IconButton, InputAdornment } from "@mui/material"
-import SendIcon from "@mui/icons-material/Send"
-import { usePostMessage } from "../queries/messages"
+import React from "react";
+import { Box, TextField, IconButton, InputAdornment } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { usePostMessage } from "../queries/messages";
 
 function MainInput() {
-  const [message, setMessage] = React.useState("")
-  const postMessage = usePostMessage()
+  const [message, setMessage] = React.useState("");
+  const postMessage = usePostMessage();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(event.target.value)
-  }
+    setMessage(event.target.value);
+  };
 
   const handleSubmit = () => {
     if (message.trim() !== "") {
-      postMessage.mutate(message)
-      console.log("Message submitted:", message)
-      setMessage("")
+      postMessage.mutate(message);
+      console.log("Message submitted:", message);
+      setMessage("");
     }
-  }
+  };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
-      event.preventDefault()
-      handleSubmit()
+      event.preventDefault();
+      handleSubmit();
     }
-  }
+  };
 
   return (
     <Box
@@ -92,7 +92,7 @@ function MainInput() {
         }}
       />
     </Box>
-  )
+  );
 }
 
-export default MainInput
+export default MainInput;

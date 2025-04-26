@@ -1,13 +1,13 @@
 // landing page for the app
 
-import React from "react"
-import { Box } from "@mui/material"
+import React from "react";
+import { Box } from "@mui/material";
 
-import Header from "../components/Header"
-import Footer from "./Footer"
+import Header from "../components/Header";
+import Footer from "./Footer";
 
 interface PageWrapperProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 function PageWrapper({ children }: PageWrapperProps) {
@@ -27,6 +27,6 @@ function PageWrapper({ children }: PageWrapperProps) {
       {children}
       <Footer />
     </Box>
-  )
+  );
 }
-export default PageWrapper
+export default PageWrapper;
