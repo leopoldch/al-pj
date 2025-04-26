@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     expose:
       - "3000"
+    networks:
+      - app-network
     restart: unless-stopped
 
   backend:
@@ -25,6 +27,8 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD}
     expose:
       - "8000"
+    networks:
+      - app-network
     restart: unless-stopped
 
   nginx:
@@ -36,4 +40,10 @@ services:
     depends_on:
       - frontend
       - backend
+    networks:
+      - app-network
     restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
