@@ -33,19 +33,22 @@ jobs:
           docker-compose down --volumes --remove-orphans || true
           docker system prune -f || true
 
+      - name: Create .env file for docker-compose
+        run: |
+          echo "DEBUG=${DEBUG}" > .env
+          echo "SECRET_KEY=${SECRET_KEY}" >> .env
+          echo "ALLOWED_HOSTS=${ALLOWED_HOSTS}" >> .env
+          echo "ALLOWED_CORS=${ALLOWED_CORS}" >> .env
+          echo "DATABASE_NAME=${DATABASE_NAME}" >> .env
+          echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> .env
+          echo "DATABASE_USERNAME=${DATABASE_USERNAME}" >> .env
+          echo "DATABASE_HOST=${DATABASE_HOST}" >> .env
+          echo "DATABASE_PORT=${DATABASE_PORT}" >> .env
+          echo "MAIL_HOST=${MAIL_HOST}" >> .env
+          echo "MAIL_PORT=${MAIL_PORT}" >> .env
+          echo "MAIL_USERNAME=${MAIL_USERNAME}" >> .env
+          echo "MAIL_PASSWORD=${MAIL_PASSWORD}" >> .env
+
       - name: Deploy with docker-compose
         run: |
-          DEBUG=${DEBUG} \
-          SECRET_KEY=${SECRET_KEY} \
-          ALLOWED_HOSTS=${ALLOWED_HOSTS} \
-          ALLOWED_CORS=${ALLOWED_CORS} \
-          DATABASE_NAME=${DATABASE_NAME} \
-          DATABASE_PASSWORD=${DATABASE_PASSWORD} \
-          DATABASE_USERNAME=${DATABASE_USERNAME} \
-          DATABASE_HOST=${DATABASE_HOST} \
-          DATABASE_PORT=${DATABASE_PORT} \
-          MAIL_HOST=${MAIL_HOST} \
-          MAIL_PORT=${MAIL_PORT} \
-          MAIL_USERNAME=${MAIL_USERNAME} \
-          MAIL_PASSWORD=${MAIL_PASSWORD} \
           docker-compose up --build -d
