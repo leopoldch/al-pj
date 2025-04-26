@@ -3,10 +3,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        REACT_APP_API_URL: ${REACT_APP_API_URL}
-    environment:
-      - REACT_APP_API_URL=${REACT_APP_API_URL}
     expose:
       - "3000"
     restart: unless-stopped
