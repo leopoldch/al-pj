@@ -31,4 +31,6 @@ CMD ["/bin/sh", "-c", "\
     : ${MAIL_PORT:?Missing MAIL_PORT} && \
     : ${MAIL_USERNAME:?Missing MAIL_USERNAME} && \
     : ${MAIL_PASSWORD:?Missing MAIL_PASSWORD} && \
+    : ${ALLOWED_HOSTS:?Missing ALLOWED_HOSTS} && \
+    : ${ALLOWED_CORS:?Missing ALLOWED_CORS} && \
     gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 4 --timeout 120"]
