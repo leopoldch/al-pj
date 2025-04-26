@@ -19,19 +19,26 @@ jobs:
         docker-compose down --volumes --remove-orphans || true
         docker system prune -f || true
 
+    - name: Generate .env file
+      run: |
+        mkdir -p ./backend
+        cat > ./backend/.env <<EOF
+        DEBUG=${{ secrets.DEBUG }}
+        SECRET_KEY=${{ secrets.SECRET_KEY }}
+        ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
+        ALLOWED_CORS=${{ secrets.ALLOWED_CORS }}
+        DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+        DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+        DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+        DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+        DATABASE_PORT=${{ secrets.DATABASE_PORT }}
+        MAIL_HOST=${{ secrets.MAIL_HOST }}
+        MAIL_PORT=${{ secrets.MAIL_PORT }}
+        MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+        MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+        EOF
+        echo ".env file created in ./backend/"
+
     - name: Deploy with docker-compose
       run: |
-        DEBUG="${{ secrets.DEBUG }}" \
-        SECRET_KEY="${{ secrets.SECRET_KEY }}" \
-        ALLOWED_HOSTS="${{ secrets.ALLOWED_HOSTS }}" \
-        ALLOWED_CORS="${{ secrets.ALLOWED_CORS }}" \
-        DATABASE_NAME="${{ secrets.DATABASE_NAME }}" \
-        DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
-        DATABASE_USERNAME="${{ secrets.DATABASE_USERNAME }}" \
-        DATABASE_HOST="${{ secrets.DATABASE_HOST }}" \
-        DATABASE_PORT="${{ secrets.DATABASE_PORT }}" \
-        MAIL_HOST="${{ secrets.MAIL_HOST }}" \
-        MAIL_PORT="${{ secrets.MAIL_PORT }}" \
-        MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
-        MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
         docker-compose up --build -d
