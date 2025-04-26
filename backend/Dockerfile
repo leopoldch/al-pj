@@ -3,7 +3,7 @@ FROM python:3.12-slim
 ENV POETRY_VERSION=1.8.2 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
-
+ 
 RUN pip install "poetry==$POETRY_VERSION"
 
 WORKDIR /app
@@ -12,6 +12,8 @@ COPY pyproject.toml poetry.lock /app/
 
 RUN poetry config virtualenvs.create false \
     && poetry install --only main
+
+RUN pip install gunicorn
 
 COPY . /app/
 
@@ -29,4 +31,4 @@ CMD ["/bin/sh", "-c", "\
     : ${MAIL_PORT:?Missing MAIL_PORT} && \
     : ${MAIL_USERNAME:?Missing MAIL_USERNAME} && \
     : ${MAIL_PASSWORD:?Missing MAIL_PASSWORD} && \
-    poetry run python manage.py runserver 0.0.0.0:8000"]
+    gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 4 --timeout 120"]

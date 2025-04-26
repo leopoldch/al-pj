@@ -1,8 +1,9 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query"
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import IUser from "../types/user"
+import getBaseURL from "../utils/utils";
 
-const apiUrl = process.env.REACT_APP_API_URL;
+const apiUrl = getBaseURL() + "/api/";
 
 interface LoginResponse {
   refresh: string

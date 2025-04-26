@@ -4,6 +4,7 @@ import axios, { AxiosInstance } from "axios"
 import { HttpStatusCode } from "axios"
 import { useGetProfile } from "../queries/auth"
 import IUser from "../types/user"
+import getBaseURL from "../utils/utils";
 
 interface AuthContextType {
   user: IUser
@@ -22,6 +23,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate()
   const { data: profile, isSuccess } = useGetProfile()
 
+  const baseUrl = getBaseURL() + "/api"
+
   useEffect(() => {
     if (isSuccess && profile) {
       setUser(profile)
@@ -37,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [token])
 
   const login = async (email: string, password: string) => {
-    const res = await fetch("/api/login", {
+    const res = await fetch(baseUrl + "/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -59,7 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return
     }
     const instance = axios.create({
-      baseURL: process.env.REACT_APP_API_URL,
+      baseURL: baseUrl,
       headers: {
         Authorization: `Bearer ${token}`,
       },

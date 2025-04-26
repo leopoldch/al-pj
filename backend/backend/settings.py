@@ -35,12 +35,12 @@ ALLOWED_HOSTS = raw_allowed_hosts.split(',') if raw_allowed_hosts else []
 
 ALLOWED_HOSTS = ALLOWED_HOSTS
 
-raw_allowed_cors = os.getenv('ALLOWED_CORS', '')
+raw_allowed_cors = os.getenv('ALLOWED_CORS', 'http://localhost')
 ALLOWED_CORS = raw_allowed_cors.split(',') if raw_allowed_cors else []
 
 
-CORS_ALLOWED_ORIGINS = ALLOWED_CORS
-
+#CORS_ALLOWED_ORIGINS = ALLOWED_CORS
+CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
