@@ -1,4 +1,4 @@
-# Personal Website for Me and My Girlfriend
+# Personal Website for Me and My Girlfriend ❤️🌸
 
 This project consists of a **frontend** developed with **React** and a **backend** powered by **Django**.  
 It is intended for deployment via **Docker Compose** for production environments.
