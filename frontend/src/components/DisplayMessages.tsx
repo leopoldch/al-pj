@@ -6,7 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useWebSocketContext } from "../contexts/WebSocketProvider";
 import { WebSocketMessageType } from "../types/websockets";
 import { MessageCreated, MessageDeleted, MessageViewed } from "../types/websocket-interfaces";
-
+import Imessage from "../types/messages";
 function DisplayAllMessages() {
   const { data: msgQuery } = useGetAllMessages();
   const [messages, setMessages] = React.useState<Imessage[]>([]);
