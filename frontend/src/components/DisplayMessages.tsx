@@ -9,7 +9,7 @@ import { MessageCreated, MessageDeleted, MessageViewed } from "../types/websocke
 
 function DisplayAllMessages() {
   const { data: msgQuery } = useGetAllMessages();
-  const [messages, setMessages] = React.useState<typeof msgQuery>([]);
+  const [messages, setMessages] = React.useState<Imessage[]>([]);
 
   useEffect(() => {
     if (msgQuery) {
