@@ -1,9 +1,4 @@
-import {
-  useMutation,
-  UseMutationResult,
-  useQuery,
-  UseQueryResult,
-} from "@tanstack/react-query";
+import { useMutation, UseMutationResult, useQuery, UseQueryResult } from "@tanstack/react-query";
 import Imessage from "../types/messages";
 import { useAuth } from "../hooks/useAuth";
 

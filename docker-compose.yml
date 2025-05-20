@@ -37,6 +37,8 @@ services:
     image: redis:7
     ports:
       - "6379:6379"
+    networks:
+      - app-network
       
   nginx:
     image: nginx:latest

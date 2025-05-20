@@ -21,7 +21,6 @@ def send_ws_message_to_user(user_id: int, event_type: Union[str, Enum], data: di
             },
         },
     )
-    print(f"Sent message to user {user_id}: {data}")
 
 def broadcast_ws_message(user_ids: list[int], event_type: Union[str, Enum], data: dict):
     for uid in user_ids:

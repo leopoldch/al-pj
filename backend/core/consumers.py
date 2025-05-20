@@ -16,6 +16,7 @@ from jwt import decode as jwt_decode
 from django.contrib.auth.models import AnonymousUser, User
 from django.conf import settings
 from urllib.parse import parse_qs
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 
 class WebSocketManager(AsyncWebsocketConsumer):

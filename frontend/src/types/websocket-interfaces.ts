@@ -1,5 +1,4 @@
-import IMessage from './messages';
-
+import IMessage from "./messages";
 
 export interface MessageViewed {
   msgId: string;

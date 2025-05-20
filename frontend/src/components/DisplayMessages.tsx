@@ -5,7 +5,7 @@ import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useWebSocketContext } from "../contexts/WebSocketProvider";
 import { WebSocketMessageType } from "../types/websockets";
-import { MessageCreated,MessageDeleted,MessageViewed } from "../types/websocket-interfaces";
+import { MessageCreated, MessageDeleted, MessageViewed } from "../types/websocket-interfaces";
 
 function DisplayAllMessages() {
   const { data: msgQuery } = useGetAllMessages();
@@ -16,7 +16,7 @@ function DisplayAllMessages() {
       setMessages(msgQuery);
     }
   }, [msgQuery]);
-  
+
   const deleteMessage = useDeleteMessage();
   const { user } = useAuth();
   const handleDelete = (id: number) => {
@@ -26,22 +26,23 @@ function DisplayAllMessages() {
   const websocket = useWebSocketContext();
 
   useEffect(() => {
-
-    const handleMessageCreated = (data:MessageCreated) => {
+    const handleMessageCreated = (data: MessageCreated) => {
       console.log("Message created:", data);
       // add at the beginning of the messages array
-      setMessages((prev) => prev ? [data.message, ...prev] : [data.message]);
+      setMessages((prev) => (prev ? [data.message, ...prev] : [data.message]));
     };
 
-    const handleMessageViewed = (data:MessageViewed) => {
+    const handleMessageViewed = (data: MessageViewed) => {
       console.log("Message updated:", data);
       // for now not used
-    }
+    };
 
-    const handleMessageDeleted = (data:MessageDeleted) => {
+    const handleMessageDeleted = (data: MessageDeleted) => {
       console.log("Message deleted:", data);
-      setMessages((prev) => prev?.filter((message) => message.id !== Number(data.message.id)) || []);
-    }
+      setMessages(
+        (prev) => prev?.filter((message) => message.id !== Number(data.message.id)) || []
+      );
+    };
 
     websocket.bind(WebSocketMessageType.MessageCreated, handleMessageCreated);
     websocket.bind(WebSocketMessageType.MessageViewed, handleMessageViewed);
@@ -52,9 +53,7 @@ function DisplayAllMessages() {
       websocket.unbind(WebSocketMessageType.MessageViewed, handleMessageViewed);
       websocket.unbind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
     };
-
-  }, [websocket, messages]);
-
+  }, [websocket]);
 
   if (!messages) {
     return <div>Loading...</div>;
