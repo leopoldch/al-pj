@@ -15,11 +15,12 @@ COPY pyproject.toml poetry.lock /app/
 RUN poetry config virtualenvs.create false \
     && poetry install --only main
 
-RUN poetry run python manage.py collectstatic --noinput
-
 RUN pip install daphne
 
 COPY . /app/
+
+RUN poetry run python manage.py collectstatic --noinput
+
 
 EXPOSE 8000
 
