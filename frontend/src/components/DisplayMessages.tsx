@@ -8,7 +8,15 @@ import { WebSocketMessageType } from "../types/websockets";
 import { MessageCreated,MessageDeleted,MessageViewed } from "../types/websocket-interfaces";
 
 function DisplayAllMessages() {
-  const { data: messages } = useGetAllMessages();
+  const { data: msgQuery } = useGetAllMessages();
+  const [messages, setMessages] = React.useState<typeof msgQuery>([]);
+
+  useEffect(() => {
+    if (msgQuery) {
+      setMessages(msgQuery);
+    }
+  }, [msgQuery]);
+  
   const deleteMessage = useDeleteMessage();
   const { user } = useAuth();
   const handleDelete = (id: number) => {
@@ -18,27 +26,34 @@ function DisplayAllMessages() {
   const websocket = useWebSocketContext();
 
   useEffect(() => {
+
     const handleMessageCreated = (data:MessageCreated) => {
       console.log("Message created:", data);
-      // Optionally, you can refetch messages here if needed
+      // add at the beginning of the messages array
+      setMessages((prev) => prev ? [data.message, ...prev] : [data.message]);
     };
+
     const handleMessageViewed = (data:MessageViewed) => {
       console.log("Message updated:", data);
-      // Optionally, you can refetch messages here if needed
+      // for now not used
     }
+
     const handleMessageDeleted = (data:MessageDeleted) => {
       console.log("Message deleted:", data);
-      // Optionally, you can refetch messages here if needed
+      setMessages((prev) => prev?.filter((message) => message.id !== Number(data.message.id)) || []);
     }
+
     websocket.bind(WebSocketMessageType.MessageCreated, handleMessageCreated);
     websocket.bind(WebSocketMessageType.MessageViewed, handleMessageViewed);
     websocket.bind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
+
     return () => {
       websocket.unbind(WebSocketMessageType.MessageCreated, handleMessageCreated);
       websocket.unbind(WebSocketMessageType.MessageViewed, handleMessageViewed);
       websocket.unbind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
     };
-  }, [websocket]);
+
+  }, [websocket, messages]);
 
 
   if (!messages) {

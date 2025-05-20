@@ -17,9 +17,10 @@ export interface MessageCreated {
 }
 
 export interface MessageDeleted {
-  msgId: string;
-  userId: string;
-  timeCode: Date;
-  message: string;
-  deleted: boolean;
+  message: IMessage;
+  sender: {
+    id: number;
+    email: string;
+    username: string;
+  };
 }

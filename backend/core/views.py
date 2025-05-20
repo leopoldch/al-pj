@@ -99,9 +99,9 @@ class MessageView(APIView):
                     {"detail": "You do not have permission to delete this message."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-            message.delete()
             # Notify other users about the deletion
             payload = MessageSerializer(message).data
+            message.delete()
             channel_layer = get_channel_layer()
             if channel_layer is not None:
                 recipients = User.objects.all().values_list("id", flat=True)
