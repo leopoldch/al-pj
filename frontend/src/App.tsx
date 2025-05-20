@@ -6,6 +6,7 @@ import React from "react";
 import Login from "./pages/Login";
 import { AuthProvider } from "./contexts/AuthContext";
 import BucketsPoints from "./pages/BucketPoints";
+import WebSocketProvider from "./contexts/WebSocketProvider";
 
 const theme = buildCustomTheme("light");
 
@@ -17,7 +18,9 @@ function App() {
         <Route
           element={
             <AuthProvider>
-              <Outlet />
+              <WebSocketProvider>
+                <Outlet />
+              </WebSocketProvider>
             </AuthProvider>
           }
         >

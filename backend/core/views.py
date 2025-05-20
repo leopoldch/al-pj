@@ -75,6 +75,28 @@ class MessageView(APIView):
                 {"detail": "Message not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
+    def post(self, request, pk):
+        if not request.user or not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication required."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        try:
+            message = Message.objects.get(pk=pk, user=request.user)
+            if message.user != request.user:
+                return Response(
+                    {"detail": "You do not have permission to view this message."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            message.status = True
+            message.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Message.DoesNotExist:
+            return Response(
+                {"detail": "Message not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
 
 class BucketPointView(APIView):
     permission_classes = [IsAuthenticated]

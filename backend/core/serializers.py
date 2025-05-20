@@ -12,8 +12,8 @@ class UserSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ["id", "user", "name", "email", "message", "created_at"]
-        read_only_fields = ["user", "name", "email", "created_at"]
+        fields = ["id", "user", "name", "email", "message", "created_at", "status"]
+        read_only_fields = ["user", "name", "email", "created_at", "status"]
 
     def create(self, validated_data):
         request = self.context.get("request")
