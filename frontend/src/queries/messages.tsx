@@ -1,10 +1,4 @@
-import {
-  useMutation,
-  UseMutationResult,
-  useQuery,
-  useQueryClient,
-  UseQueryResult,
-} from "@tanstack/react-query";
+import { useMutation, UseMutationResult, useQuery, UseQueryResult } from "@tanstack/react-query";
 import Imessage from "../types/messages";
 import { useAuth } from "../hooks/useAuth";
 
@@ -24,7 +18,6 @@ const useGetAllMessages = (): UseQueryResult<Imessage[], unknown> => {
 
 const usePostMessage = (): UseMutationResult<Imessage, unknown, string> => {
   const { axiosInstance } = useAuth();
-  const queryClient = useQueryClient();
 
   return useMutation<Imessage, unknown, string>({
     mutationFn: async (newMessage: string) => {
@@ -33,22 +26,15 @@ const usePostMessage = (): UseMutationResult<Imessage, unknown, string> => {
       });
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MESSAGE_QUERY_KEY });
-    },
   });
 };
 
 const useDeleteMessage = (): UseMutationResult<void, unknown, number> => {
   const { axiosInstance } = useAuth();
-  const queryClient = useQueryClient();
 
   return useMutation<void, unknown, number>({
     mutationFn: async (id: number) => {
       await axiosInstance.delete<void>(`/messages/${id}/`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MESSAGE_QUERY_KEY });
     },
   });
 };

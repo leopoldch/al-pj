@@ -1,16 +1,59 @@
 import { useDeleteMessage, useGetAllMessages } from "../queries/messages";
 import { IconButton, Box } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
-
+import { useWebSocketContext } from "../contexts/WebSocketProvider";
+import { WebSocketMessageType } from "../types/websockets";
+import { MessageCreated, MessageDeleted, MessageViewed } from "../types/websocket-interfaces";
+import Imessage from "../types/messages";
 function DisplayAllMessages() {
-  const { data: messages } = useGetAllMessages();
+  const { data: msgQuery } = useGetAllMessages();
+  const [messages, setMessages] = React.useState<Imessage[]>([]);
+
+  useEffect(() => {
+    if (msgQuery) {
+      setMessages(msgQuery);
+    }
+  }, [msgQuery]);
+
   const deleteMessage = useDeleteMessage();
   const { user } = useAuth();
   const handleDelete = (id: number) => {
     deleteMessage.mutate(id);
   };
+
+  const websocket = useWebSocketContext();
+
+  useEffect(() => {
+    const handleMessageCreated = (data: MessageCreated) => {
+      console.log("Message created:", data);
+      // add at the beginning of the messages array
+      setMessages((prev) => (prev ? [data.message, ...prev] : [data.message]));
+    };
+
+    const handleMessageViewed = (data: MessageViewed) => {
+      console.log("Message updated:", data);
+      // for now not used
+    };
+
+    const handleMessageDeleted = (data: MessageDeleted) => {
+      console.log("Message deleted:", data);
+      setMessages(
+        (prev) => prev?.filter((message) => message.id !== Number(data.message.id)) || []
+      );
+    };
+
+    websocket.bind(WebSocketMessageType.MessageCreated, handleMessageCreated);
+    websocket.bind(WebSocketMessageType.MessageViewed, handleMessageViewed);
+    websocket.bind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
+
+    return () => {
+      websocket.unbind(WebSocketMessageType.MessageCreated, handleMessageCreated);
+      websocket.unbind(WebSocketMessageType.MessageViewed, handleMessageViewed);
+      websocket.unbind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
+    };
+  }, [websocket]);
 
   if (!messages) {
     return <div>Loading...</div>;

@@ -1,0 +1,9 @@
+from enum import Enum
+
+class WebSocketMessageType(str, Enum):
+    MESSAGE_VIEWED = "MESSAGE_VIEWED"
+    BUCKETPOINT_UPDATED = "BUCKETPOINT_UPDATED"
+    MESSAGE_CREATED = "MESSAGE_CREATED"
+    MESSAGE_DELETED = "MESSAGE_DELETED"
+    
+

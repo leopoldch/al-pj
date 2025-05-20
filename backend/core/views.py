@@ -7,6 +7,12 @@ from .serializers import MessageSerializer, UserSerializer, BucketPointSerialize
 from core.utils import send_formatted_mail
 from django.contrib.auth.models import User
 
+# ws import
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from core.websocket.utils import send_ws_message_to_user, broadcast_ws_message
+from core.websocket.messages import WebSocketMessageType
+
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -44,14 +50,39 @@ class MessageView(APIView):
 
         serializer = MessageSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            serializer.save()
-
+            message = serializer.save()
+            payload = MessageSerializer(message).data
             # get all the users except the one who sent the message
-            users = User.objects.exclude(id=request.user.id)
+            # FIXME: this is a temporary solution to debug
+            users = User.objects.all()
+            channel_layer = get_channel_layer()
+            print("Channel Layer: ", channel_layer)
+            if channel_layer is not None:
+                recipients = users.values_list("id", flat=True)
+                for uid in recipients:
+                    send_ws_message_to_user(
+                        uid,
+                        WebSocketMessageType.MESSAGE_CREATED,
+                        {
+                            "message": payload,
+                            "sender": {
+                                "id": request.user.id,
+                                "username": request.user.username,
+                                "email": request.user.email,
+                            },
+                        },
+                    )
+
+
             for user in users:
-                send_formatted_mail(str(user.email), str(user.username))
+                send_formatted_mail(str(user.email), str(user.username))        
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
+        
+
+
+        
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -68,12 +99,33 @@ class MessageView(APIView):
                     {"detail": "You do not have permission to delete this message."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
+            # Notify other users about the deletion
+            payload = MessageSerializer(message).data
             message.delete()
+            channel_layer = get_channel_layer()
+            if channel_layer is not None:
+                recipients = User.objects.all().values_list("id", flat=True)
+                for uid in recipients:
+                    send_ws_message_to_user(
+                        uid,
+                        WebSocketMessageType.MESSAGE_DELETED,
+                        {
+                            "message": payload,
+                            "sender": {
+                                "id": request.user.id,
+                                "username": request.user.username,
+                                "email": request.user.email,
+                            },
+                        },
+                    )
+            
+            
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Message.DoesNotExist:
             return Response(
                 {"detail": "Message not found."}, status=status.HTTP_404_NOT_FOUND
             )
+
 
 
 class BucketPointView(APIView):
