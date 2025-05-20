@@ -54,7 +54,7 @@ class MessageView(APIView):
             payload = MessageSerializer(message).data
             # get all the users except the one who sent the message
             # FIXME: this is a temporary solution to debug
-            users = User.objects.exclude(id=request.user.id)
+            users = User.objects.all()
             channel_layer = get_channel_layer()
             print("Channel Layer: ", channel_layer)
             if channel_layer is not None:
@@ -104,9 +104,7 @@ class MessageView(APIView):
             payload = MessageSerializer(message).data
             channel_layer = get_channel_layer()
             if channel_layer is not None:
-                recipients = User.objects.exclude(id=request.user.id).values_list(
-                    "id", flat=True
-                )
+                recipients = User.objects.all().values_list("id", flat=True)
                 for uid in recipients:
                     send_ws_message_to_user(
                         uid,
