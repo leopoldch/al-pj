@@ -3,8 +3,10 @@ FROM python:3.12-slim
 ENV POETRY_VERSION=1.8.2 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
- 
-RUN pip install "poetry==$POETRY_VERSION"
+
+RUN apt-get update && apt-get install -y curl && \
+    pip install "poetry==$POETRY_VERSION" && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -13,7 +15,7 @@ COPY pyproject.toml poetry.lock /app/
 RUN poetry config virtualenvs.create false \
     && poetry install --only main
 
-RUN pip install gunicorn
+RUN pip install daphne
 
 COPY . /app/
 
@@ -33,4 +35,4 @@ CMD ["/bin/sh", "-c", "\
     : ${MAIL_PASSWORD:?Missing MAIL_PASSWORD} && \
     : ${ALLOWED_HOSTS:?Missing ALLOWED_HOSTS} && \
     : ${ALLOWED_CORS:?Missing ALLOWED_CORS} && \
-    gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 4 --timeout 120"]
+    daphne -b 0.0.0.0 -p 8000 backend.asgi:application"]

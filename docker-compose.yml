@@ -33,6 +33,11 @@ services:
       - app-network
     restart: unless-stopped
 
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+      
   nginx:
     image: nginx:latest
     ports:
@@ -45,6 +50,7 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+  
 
 networks:
   app-network:
