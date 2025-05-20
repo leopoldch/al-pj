@@ -1,3 +1,5 @@
 export enum WebSocketMessageType {
-  MessageViewed = "message_viewed",
+  MessageViewed = "MESSAGE_VIEWED",
+  MessageCreated = "MESSAGE_CREATED",
+  MessageDeleted = "MESSAGE_DELETED",
 }

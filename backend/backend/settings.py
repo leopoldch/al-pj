@@ -112,6 +112,13 @@ DATABASES = {
 }
 
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",  # seulement pour le développement
+    }
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

@@ -4,4 +4,6 @@ export default interface IMessage {
   email: string;
   message: string;
   created_at: string;
+  user: number;
+  status: boolean;
 }

@@ -57,8 +57,8 @@ export class WebSocketClient {
     };
     webSocket.onmessage = <T extends WebSocketMessageType>(event: MessageEvent<string>) => {
       const messageString = event.data;
-      console.debug("WebSocket received message", messageString);
       const message: WebSocketMessage<T> = JSON.parse(messageString);
+      console.debug("WebSocket received message", message);
       if (!message.type || !message.data) {
         console.warn(
           "WebSocket message is not a valid WebSocketMessage (missing type or data fields)"

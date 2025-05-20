@@ -1,8 +1,11 @@
 import { useDeleteMessage, useGetAllMessages } from "../queries/messages";
 import { IconButton, Box } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useWebSocketContext } from "../contexts/WebSocketProvider";
+import { WebSocketMessageType } from "../types/websockets";
+import { MessageCreated,MessageDeleted,MessageViewed } from "../types/websocket-interfaces";
 
 function DisplayAllMessages() {
   const { data: messages } = useGetAllMessages();
@@ -11,6 +14,32 @@ function DisplayAllMessages() {
   const handleDelete = (id: number) => {
     deleteMessage.mutate(id);
   };
+
+  const websocket = useWebSocketContext();
+
+  useEffect(() => {
+    const handleMessageCreated = (data:MessageCreated) => {
+      console.log("Message created:", data);
+      // Optionally, you can refetch messages here if needed
+    };
+    const handleMessageViewed = (data:MessageViewed) => {
+      console.log("Message updated:", data);
+      // Optionally, you can refetch messages here if needed
+    }
+    const handleMessageDeleted = (data:MessageDeleted) => {
+      console.log("Message deleted:", data);
+      // Optionally, you can refetch messages here if needed
+    }
+    websocket.bind(WebSocketMessageType.MessageCreated, handleMessageCreated);
+    websocket.bind(WebSocketMessageType.MessageViewed, handleMessageViewed);
+    websocket.bind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
+    return () => {
+      websocket.unbind(WebSocketMessageType.MessageCreated, handleMessageCreated);
+      websocket.unbind(WebSocketMessageType.MessageViewed, handleMessageViewed);
+      websocket.unbind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
+    };
+  }, [websocket]);
+
 
   if (!messages) {
     return <div>Loading...</div>;

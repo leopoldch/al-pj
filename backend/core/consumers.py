@@ -21,11 +21,18 @@ from urllib.parse import parse_qs
 class WebSocketManager(AsyncWebsocketConsumer):
     async def connect(self):
         self.scope["user"] = await self.get_user()
-        if not self.scope["user"].is_authenticated:
+        user = self.scope["user"]
+        if not user.is_authenticated:
             await self.close()
         else:
-            print(f"User {self.scope['user']} connected")
+            self.user_group_name = f"user_{user.id}"
+            await self.channel_layer.group_add(self.user_group_name, self.channel_name)
             await self.accept()
+            print(f"User {user} connected to group {self.user_group_name}")
+
+    async def disconnect(self, close_code):
+        if hasattr(self, "user_group_name"):
+            await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
 
     @database_sync_to_async
     def get_user(self):
@@ -44,8 +51,4 @@ class WebSocketManager(AsyncWebsocketConsumer):
         # process the message
 
     async def send_message(self, event):
-        # send message to WebSocket
-        await self.send(text_data=json.dumps(event))
-
-    async def disconnect(self, close_code):
-        pass
+        await self.send(text_data=json.dumps(event["payload"]))
