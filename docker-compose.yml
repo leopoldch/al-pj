@@ -36,6 +36,7 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
       - ALLOWED_CORS=${ALLOWED_CORS}
+      - REDIS_HOST=redis
     expose:
       - "8000"
     networks:
