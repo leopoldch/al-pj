@@ -1,6 +1,5 @@
 import { WebSocketMessage, WebSocketMessageTable } from "../types/websocket-messages";
 import { WebSocketMessageType } from "../types/websockets";
-
 type WebSocketCallback<T extends WebSocketMessageType> = (data: WebSocketMessageTable[T]) => void;
 type WebSocketCallbacks = {
   [key in WebSocketMessageType]: Set<WebSocketCallback<key>>;
@@ -39,9 +38,9 @@ export class WebSocketClient {
     
     url.protocol = "wss:";
     // if current url is http, change it to ws
-    if (location.href.startsWith("http")){
+    if (window.location.href.startsWith("http:")) {
       url.protocol = "ws:";
-    }    
+    }
 
     url.searchParams.set("accessToken", accessToken);
     this.webSocket = new WebSocket(url.toString());
