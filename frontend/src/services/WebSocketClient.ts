@@ -36,7 +36,7 @@ export class WebSocketClient {
     }
     this.accessToken = accessToken;
     const url = new URL(apiUrl);
-    url.protocol = "wss:";
+    url.protocol = "ws:";
     url.pathname = "/ws/";
     url.searchParams.set("accessToken", accessToken);
     this.webSocket = new WebSocket(url.toString());
