@@ -21,6 +21,17 @@ npm run lint:fix
 npm run format
 ```
 
+### Running Tests
+
+To execute the frontend tests you first need to install the dependencies and
+then run the Jest suite without watch mode:
+
+```bash
+cd frontend
+npm install
+npm test -- --watchAll=false
+```
+
 ---
 
 ## Backend
@@ -35,6 +46,16 @@ python manage.py makemigrations
 python manage.py migrate
 
 python manage.py runserver
+```
+
+### Running Tests
+
+Ensure the backend dependencies are installed (using `poetry install` or `pip`) and run the Django test suite with SQLite:
+
+```bash
+cd backend
+poetry install  # or pip install -r requirements.txt
+USE_SQLITE=True SECRET_KEY=dummy python manage.py test
 ```
 
 ---
