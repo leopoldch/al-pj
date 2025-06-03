@@ -79,7 +79,7 @@ export default function OptionsButton() {
               width: "140px",
             }}
           >
-            <Typography>Déconnection</Typography>
+            <Typography>Déconnexion</Typography>
             <LogoutIcon />
           </Box>
         </MenuItem>
