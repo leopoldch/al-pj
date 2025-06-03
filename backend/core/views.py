@@ -37,7 +37,7 @@ class MessageView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        messages = Message.objects
+        messages = Message.objects.all()
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data)
 
