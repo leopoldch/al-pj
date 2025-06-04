@@ -1,6 +1,10 @@
 # Personal Website for Me and My Girlfriend ❤️🌸
 
 This project consists of a **frontend** developed with **React** and a **backend** powered by **Django**.  
+## Project Overview
+
+The application is split into a React frontend and a Django backend. A Redis service handles WebSocket channels and an Nginx reverse proxy exposes both parts under a single entry point. Docker Compose orchestrates these services for both development and production deployments.
+
 It is intended for deployment via **Docker Compose** for production environments.
 
 ---
@@ -66,6 +70,7 @@ The application is containerized using **Docker Compose**.
 
 ### Required Environment Variables
 
+Before starting, create a `.env` file at the project root containing these variables.
 Before running `docker-compose up`, configure the following environment variables:
 
 | Variable            | Description                           | Example                   |
@@ -94,7 +99,7 @@ docker-compose up --build
 
 ## TODO
 
-- [ ] Add a development container (`.devcontainer/`) for VSCode integration
+- [X] Add a development container (`.devcontainer/`) for VSCode integration
 - [ ] Add a `TODO` command or page within the project for internal task tracking
 - [ ] Write full testing suites (unit and integration tests)
 - [X] Set up CI/CD (Continuous Integration and Delivery)
@@ -102,3 +107,8 @@ docker-compose up --build
 - [X] Implement user authentication and authorization
 - [X] Secure environment variables management (use `.env` file with Docker Compose)
 - [X] Configure HTTPS for production
+
+## Development with Dev Containers
+
+If you use VS Code, you can open the repository inside a container for a ready-to-use environment. The configuration lives in the `.devcontainer` directory. After opening the dev container, dependencies for both the frontend and backend will be installed automatically.
+
