@@ -18,13 +18,21 @@ export default ({ children }: WithChildren) => {
   const webSocketClientRef = useRef<WebSocketClient>(new WebSocketClient());
   const { token: accessToken } = useAuth();
   const currentUrl = window.location.href;
-  const wsUrl = process.env.NODE_ENV === "development" ? process.env.REACT_APP_WS_URL : currentUrl;
+
+  const wsUrl = process.env.NODE_ENV === "development" ? process.env.REACT_APP_WS_URL : `${currentUrl}/ws/`;
   if (!wsUrl) {
     throw new Error("WebSocket URL is not defined");
   }
+  let wsUrlFormatted = wsUrl;
+  if (wsUrlFormatted.startsWith('https://')) {
+    wsUrlFormatted = wsUrlFormatted.replace('https://', 'wss://');
+  } else if (wsUrlFormatted.startsWith('http://')) {
+    wsUrlFormatted = wsUrlFormatted.replace('http://', 'ws://');
+  }
+  
   useEffect(() => {
     if (!accessToken) return;
-    webSocketClientRef.current.connect(wsUrl, accessToken);
+    webSocketClientRef.current.connect(wsUrlFormatted, accessToken);
   }, [accessToken]);
   const value = useMemo(
     () => ({

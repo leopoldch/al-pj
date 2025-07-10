@@ -5,7 +5,7 @@ import getBaseURL from "../utils/utils";
 
 const apiUrl =
   process.env.NODE_ENV === "development" ? process.env.REACT_APP_API_URL : getBaseURL() + "/api/";
-
+console.log("API URL:", apiUrl);
 interface LoginResponse {
   refresh: string;
   access: string;
