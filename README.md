@@ -73,8 +73,8 @@ docker-compose up --build
 
 ## TODO
 
-- [ ] Add a development container (`.devcontainer/`) for VSCode integration
-- [ ] Add a `TODO` command or page within the project for internal task tracking
+- [ ] Add a development container
+- [X] Add a `TODO` feature
 - [ ] Write full testing suites (unit and integration tests)
 - [X] Set up CI/CD (Continuous Integration and Delivery)
 - [ ] Improve frontend responsiveness for mobile devices
