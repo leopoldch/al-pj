@@ -14,6 +14,15 @@ from core.websocket.utils import send_ws_message_to_user, broadcast_ws_message
 from core.websocket.messages import WebSocketMessageType
 
 
+import os
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
+
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
+
+
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -73,10 +82,9 @@ class MessageView(APIView):
                         },
                     )
 
-
             for user in users:
-                send_formatted_mail(str(user.email), str(user.username))        
-
+                if not DEBUG:
+                    send_formatted_mail(str(user.email), str(user.username))        
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
 
