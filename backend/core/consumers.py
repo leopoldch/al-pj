@@ -33,7 +33,9 @@ class WebSocketManager(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if hasattr(self, "user_group_name"):
-            await self.channel_layer.group_discard(self.user_group_name, self.channel_name)
+            await self.channel_layer.group_discard(
+                self.user_group_name, self.channel_name
+            )
 
     @database_sync_to_async
     def get_user(self):

@@ -67,7 +67,13 @@ class MessageView(APIView):
             channel_layer = get_channel_layer()
             print("Channel Layer: ", channel_layer)
             if channel_layer is not None:
+
+                # FIXME: this is only temporary and works because this app is only
+                # meant to be used by two users
+                # in a real world scenario, we would need to filter the users based on the
+                # conversation or group the message belongs to
                 recipients = users.values_list("id", flat=True)
+
                 for uid in recipients:
                     send_ws_message_to_user(
                         uid,
@@ -84,13 +90,8 @@ class MessageView(APIView):
 
             for user in users:
                 if not DEBUG:
-                    send_formatted_mail(str(user.email), str(user.username))        
+                    send_formatted_mail(str(user.email), str(user.username))
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-
-
-        
-        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -112,6 +113,12 @@ class MessageView(APIView):
             message.delete()
             channel_layer = get_channel_layer()
             if channel_layer is not None:
+
+                # FIXME: this is only temporary and works because this app is only
+                # meant to be used by two users
+                # in a real world scenario, we would need to filter the users based on the
+                # conversation or group the message belongs to
+
                 recipients = User.objects.all().values_list("id", flat=True)
                 for uid in recipients:
                     send_ws_message_to_user(
@@ -126,14 +133,12 @@ class MessageView(APIView):
                             },
                         },
                     )
-            
-            
+
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Message.DoesNotExist:
             return Response(
                 {"detail": "Message not found."}, status=status.HTTP_404_NOT_FOUND
             )
-
 
 
 class BucketPointView(APIView):
