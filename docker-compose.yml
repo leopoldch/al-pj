@@ -45,7 +45,7 @@ services:
     depends_on:
       - redis
     volumes:
-      - ./backend/static:/app/static
+      - static_data:/app/static
 
       
   nginx:
@@ -54,7 +54,7 @@ services:
       - "5002:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./backend/static:/app/static:ro
+      - static_data:/app/static:ro
     depends_on:
       - frontend
       - backend
@@ -66,3 +66,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  static_data:
