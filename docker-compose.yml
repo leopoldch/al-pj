@@ -44,6 +44,8 @@ services:
     restart: unless-stopped
     depends_on:
       - redis
+    volumes:
+      - ./backend/static:/app/static
 
       
   nginx:
