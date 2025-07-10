@@ -88,9 +88,10 @@ class MessageView(APIView):
                         },
                     )
 
-            for user in users:
-                if not DEBUG:
-                    send_formatted_mail(str(user.email), str(user.username))
+            # get the user to whom the message was sent
+            receiver = users.exclude(id=request.user.id).first()
+            if not DEBUG:
+                send_formatted_mail(str(receiver.email), str(receiver.username))
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
