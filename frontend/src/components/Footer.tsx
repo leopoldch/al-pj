@@ -18,7 +18,7 @@ function Footer() {
       }}
     >
       <Typography variant="body1" color={mainFontColor}>
-        © 2025 Aurianne Swchartz & Léopold Chappuis
+        © 2025 Aurianne Schwartz & Léopold Chappuis
       </Typography>
     </Box>
   );
