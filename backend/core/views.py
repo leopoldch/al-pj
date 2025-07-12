@@ -172,7 +172,29 @@ class BucketPointView(APIView):
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
-            serializer.save()
+            bucket = serializer.save()
+            # FIXME: this is only temporary and works because this app is only
+            # meant to be used by two users
+            # in a real world scenario, we would need to filter the users based on the
+            # conversation or group the message belongs to
+
+            recipients = User.objects.all().values_list("id", flat=True)
+            payload = BucketPointSerializer(bucket).data
+
+            for uid in recipients:
+                send_ws_message_to_user(
+                    uid,
+                    WebSocketMessageType.BUCKETPOINT_CREATED,
+                    {
+                        "message": payload,
+                        "sender": {
+                            "id": request.user.id,
+                            "username": request.user.username,
+                            "email": request.user.email,
+                        },
+                    },
+                )
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -187,6 +209,25 @@ class BucketPointView(APIView):
         try:
             bucket_point = BucketPoint.objects.get(pk=pk)
             bucket_point.delete()
+
+            payload = BucketPointSerializer(bucket_point).data
+            channel_layer = get_channel_layer()
+            if channel_layer is not None:
+                recipients = User.objects.all().values_list("id", flat=True)
+                for uid in recipients:
+                    send_ws_message_to_user(
+                        uid,
+                        WebSocketMessageType.BUCKETPOINT_DELETED,
+                        {
+                            "bucket_point": payload,
+                            "sender": {
+                                "id": request.user.id,
+                                "username": request.user.username,
+                                "email": request.user.email,
+                            },
+                        },
+                    )
+
             return Response(status=status.HTTP_204_NO_CONTENT)
         except BucketPoint.DoesNotExist:
             return Response(
@@ -206,7 +247,25 @@ class BucketPointView(APIView):
                 bucket_point, data=request.data, partial=True
             )
             if serializer.is_valid():
-                serializer.save()
+                bucket = serializer.save()
+                # Notify other users about the update with websocket
+                payload = BucketPointSerializer(bucket).data
+                channel_layer = get_channel_layer()
+                if channel_layer is not None:
+                    recipients = User.objects.all().values_list("id", flat=True)
+                    for uid in recipients:
+                        send_ws_message_to_user(
+                            uid,
+                            WebSocketMessageType.BUCKETPOINT_UPDATED,
+                            {
+                                "bucket_point": payload,
+                                "sender": {
+                                    "id": request.user.id,
+                                    "username": request.user.username,
+                                    "email": request.user.email,
+                                },
+                            },
+                        )
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except BucketPoint.DoesNotExist:
