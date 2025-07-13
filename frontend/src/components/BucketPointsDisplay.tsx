@@ -73,11 +73,15 @@ export default function BucketPointsDisplay() {
 
   // filtrage dynamique selon le champ search
   const filteredBucketPoints =
-    bucketPoints?.filter(
-      (point) =>
-        point.title.toLowerCase().includes(search.toLowerCase()) ||
-        point.description.toLowerCase().includes(search.toLowerCase())
-    ) || [];
+    bucketPoints
+      ?.filter(
+        (point) =>
+          point.title.toLowerCase().includes(search.toLowerCase()) ||
+          point.description.toLowerCase().includes(search.toLowerCase())
+      )
+      .sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ) || [];
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" mt={4} width="60%">
