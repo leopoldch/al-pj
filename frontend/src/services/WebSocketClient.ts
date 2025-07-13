@@ -35,7 +35,7 @@ export class WebSocketClient {
     }
     this.accessToken = accessToken;
     const url = new URL(apiUrl);
-    
+
     url.protocol = "wss:";
     // if current url is http, change it to ws
     if (window.location.href.startsWith("http:")) {

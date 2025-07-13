@@ -23,3 +23,8 @@ export interface MessageDeleted {
     username: string;
   };
 }
+
+export interface Presence {
+  user_id: number;
+  name: string;
+}
