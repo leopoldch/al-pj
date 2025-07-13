@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import React from "react";
 import { mainFontColor } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,9 @@ import PresenceIndicator from "./PresenceIndicator";
 
 function Header() {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.down("md"));
+
   function handleClick() {
     navigate("/");
   }
@@ -15,21 +18,24 @@ function Header() {
     <Box
       sx={{
         display: "flex",
-        justifyContent: "space-between",
+        flexDirection: isMobile ? "column-reverse" : "row",
+        justifyContent: isMobile ? "center" : "space-between",
         alignItems: "center",
-        height: "100px",
-        paddingLeft: "20px",
-        paddingRight: "20px",
-        gap: "20px",
-        paddingTop: "5px",
+        height: isMobile ? "auto" : "100px",
+        paddingLeft: isMobile ? "10px" : "20px",
+        paddingRight: isMobile ? "10px" : "20px",
+        gap: isMobile ? "10px" : "20px",
+        paddingTop: isMobile ? "10px" : "5px",
+        paddingBottom: isMobile ? "10px" : 0,
+        marginBottom: isMobile ? "0px" : "100px",
       }}
     >
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
+          flexDirection: isMobile ? "column" : "row",
           alignItems: "center",
-          gap: "20px",
+          gap: isMobile ? "5px" : "20px",
         }}
       >
         <Box
@@ -44,9 +50,14 @@ function Header() {
           <img
             src="./icon.png"
             alt="Logo"
-            style={{ width: "100px", height: "100px", borderRadius: "10px" }}
+            style={{
+              width: isMobile ? "70px" : "100px",
+              height: isMobile ? "70px" : "100px",
+              borderRadius: "10px",
+            }}
           />
         </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -58,14 +69,25 @@ function Header() {
             style={{
               color: mainFontColor,
               fontWeight: "bold",
-              fontSize: "40px",
+              fontSize: isMobile ? "24px" : "40px",
+              margin: 0,
             }}
           >
             Aurianne et Léo
           </h1>
         </Box>
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "row", gap: "100px", alignItems: "center" }}>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: isMobile ? "20px" : "100px",
+          alignItems: "center",
+          justifyContent: isMobile ? "space-between" : "unset",
+          width: isMobile ? "100%" : "auto",
+        }}
+      >
         <PresenceIndicator />
         <OptionsButton />
       </Box>

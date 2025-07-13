@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, TextField, IconButton, InputAdornment } from "@mui/material";
+import { Box, TextField, IconButton, InputAdornment, useTheme, useMediaQuery } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { usePostMessage } from "../queries/messages";
 
@@ -7,14 +7,17 @@ function MainInput() {
   const [message, setMessage] = React.useState("");
   const postMessage = usePostMessage();
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
 
   const handleSubmit = () => {
-    if (message.trim() !== "") {
-      postMessage.mutate(message);
-      console.log("Message submitted:", message);
+    const trimmed = message.trim();
+    if (trimmed !== "") {
+      postMessage.mutate(trimmed);
       setMessage("");
     }
   };
@@ -29,14 +32,9 @@ function MainInput() {
   return (
     <Box
       sx={{
-        marginTop: "-200px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "transparent",
-        width: "400px",
-        height: "300px",
+        width: isMobile ? "90%" : "400px",
+        px: isMobile ? 1 : 0,
+        py: 1,
       }}
     >
       <TextField
@@ -53,19 +51,13 @@ function MainInput() {
           boxShadow: 3,
           "& .MuiOutlinedInput-root": {
             borderRadius: 2,
-            "& fieldset": {
-              border: "none", // Retire la bordure normale
-            },
-            "&:hover fieldset": {
-              border: "none", // Retire la bordure au hover
-            },
-            "&.Mui-focused fieldset": {
-              border: "none", // Retire la bordure au focus
-            },
-            paddingRight: "0", // Ajuste pour que l'icône ne décale pas trop
+            "& fieldset": { border: "none" },
+            "&:hover fieldset": { border: "none" },
+            "&.Mui-focused fieldset": { border: "none" },
           },
           input: {
-            padding: "12px",
+            padding: theme.spacing(1.25),
+            fontSize: isMobile ? "0.9rem" : "1rem",
           },
         }}
         InputProps={{
@@ -73,19 +65,19 @@ function MainInput() {
             <InputAdornment position="end">
               <IconButton
                 onClick={handleSubmit}
-                color="primary"
-                edge="end"
                 sx={{
                   backgroundColor: "primary.light",
-                  color: "white",
+                  color: "#fff",
+                  borderRadius: 2,
+                  width: theme.spacing(isMobile ? 4.5 : 5),
+                  height: theme.spacing(isMobile ? 4.5 : 5),
                   "&:hover": {
                     backgroundColor: "primary.main",
                   },
-                  borderRadius: 2,
-                  marginRight: "4px",
+                  ml: 0.5,
                 }}
               >
-                <SendIcon />
+                <SendIcon fontSize={isMobile ? "small" : "medium"} />
               </IconButton>
             </InputAdornment>
           ),

@@ -15,6 +15,8 @@ import {
   Paper,
   Typography,
   InputBase,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -36,6 +38,9 @@ export default function BucketPointsDisplay() {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [search, setSearch] = useState("");
+
+  const theme = useTheme();
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleDelete = (id: number) => {
     deleteBucketPoint.mutate(id);
@@ -71,7 +76,6 @@ export default function BucketPointsDisplay() {
 
   const completedCount = bucketPoints?.filter((point) => point.completed).length || 0;
 
-  // filtrage dynamique selon le champ search
   const filteredBucketPoints =
     bucketPoints
       ?.filter(
@@ -79,26 +83,45 @@ export default function BucketPointsDisplay() {
           point.title.toLowerCase().includes(search.toLowerCase()) ||
           point.description.toLowerCase().includes(search.toLowerCase())
       )
-      .sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      ) || [];
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" mt={4} width="60%">
-      <Box display="flex" justifyContent="space-between" alignItems="center" width="100%" mb={2}>
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      mt={-2}
+      width={isMobile ? "95%" : "60%"}
+      height="auto"
+    >
+      <Box
+        display="flex"
+        flexDirection={isMobile ? "column" : "row"}
+        justifyContent="space-between"
+        alignItems={isMobile ? "flex-start" : "center"}
+        width="100%"
+        mb={2}
+        gap={isMobile ? 2 : 0}
+      >
         <Box
           sx={{
             display: "flex",
-            flexDirection: "row",
-            alignContent: "center",
-            alignItems: "center",
-            gap: "10px",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "flex-start" : "center",
+            gap: isMobile ? "8px" : "10px",
           }}
         >
-          <Typography variant="h4">À faire ensemble 🧸</Typography>
+          <Typography variant={isMobile ? "h5" : "h4"}>À faire ensemble 🧸</Typography>
           <BucketPointsInput />
         </Box>
-        <Box display="flex" alignItems="center" gap={2}>
+
+        <Box
+          display="flex"
+          flexDirection={isMobile ? "column" : "row"}
+          alignItems={isMobile ? "flex-start" : "center"}
+          gap={isMobile ? 1 : 2}
+          width={isMobile ? "100%" : "auto"}
+        >
           <Typography variant="h6" color="text.secondary">
             {completedCount} réalisés
           </Typography>
@@ -111,6 +134,7 @@ export default function BucketPointsDisplay() {
               border: "1px solid #ccc",
               borderRadius: 2,
               backgroundColor: "rgba(255,255,255,0.9)",
+              width: isMobile ? "100%" : "auto",
             }}
           />
         </Box>
@@ -119,7 +143,7 @@ export default function BucketPointsDisplay() {
       <List
         sx={{
           width: "100%",
-          height: "70vh",
+          height: isMobile ? "50vh" : "60vh",
           overflowY: "auto",
           pr: 1,
         }}
@@ -130,12 +154,16 @@ export default function BucketPointsDisplay() {
             elevation={3}
             sx={{
               mb: 2,
-              p: 2,
+              p: isMobile ? 1.5 : 2,
               backgroundColor: "rgba(255, 255, 255, 0.8)",
               borderRadius: 2,
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack
+              direction={isMobile ? "column" : "row"}
+              alignItems={isMobile ? "flex-start" : "center"}
+              spacing={2}
+            >
               <Checkbox
                 checked={bucketPoint.completed}
                 onChange={() => handleToggleCompleted(bucketPoint)}
@@ -146,7 +174,9 @@ export default function BucketPointsDisplay() {
                     <Typography
                       variant="h6"
                       sx={{
+                        fontSize: isMobile ? "1rem" : "1.2rem",
                         textDecoration: bucketPoint.completed ? "line-through" : "none",
+                        wordBreak: "break-word",
                       }}
                     >
                       {bucketPoint.title}
@@ -154,7 +184,11 @@ export default function BucketPointsDisplay() {
                   }
                   secondary={
                     <>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ wordBreak: "break-word" }}
+                      >
                         Description: {bucketPoint.description}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -164,12 +198,12 @@ export default function BucketPointsDisplay() {
                   }
                 />
               </Box>
-              <Stack direction="row" spacing={1}>
+              <Stack direction="row" spacing={1} mt={isMobile ? 1 : 0}>
                 <IconButton color="primary" onClick={() => handleEditOpen(bucketPoint)}>
-                  <EditIcon />
+                  <EditIcon fontSize={isMobile ? "small" : "medium"} />
                 </IconButton>
                 <IconButton color="error" onClick={() => handleDelete(bucketPoint.id)}>
-                  <DeleteIcon />
+                  <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
                 </IconButton>
               </Stack>
             </Stack>
@@ -177,7 +211,7 @@ export default function BucketPointsDisplay() {
         ))}
       </List>
 
-      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth={isMobile}>
         <DialogTitle>Modifier le Bucket Point</DialogTitle>
         <DialogContent>
           <Stack spacing={2} mt={1}>

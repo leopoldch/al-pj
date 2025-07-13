@@ -1,4 +1,8 @@
 body {
+  background-image: url("../public/background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: repeat;
   margin: 0;
   font-family:
     "Quicksand",

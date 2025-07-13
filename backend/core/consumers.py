@@ -26,7 +26,7 @@ load_dotenv(find_dotenv())
 
 from redis.asyncio import Redis
 
-REDIS_URL = "redis://" + os.getenv("REDIS_HOST", "redis://localhost")
+REDIS_URL = "redis://" + os.getenv("REDIS_HOST", "localhost")
 redis_client = Redis.from_url(REDIS_URL)
 
 # PLEASE NOTE THAT THIS IS A VERY BASIC IMPLEMENTATION
