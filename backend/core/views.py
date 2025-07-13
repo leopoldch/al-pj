@@ -20,7 +20,7 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost")
+REDIS_URL = "redis://" + os.getenv("REDIS_HOST", "localhost")
 r = redis.Redis.from_url(REDIS_URL)
 
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
