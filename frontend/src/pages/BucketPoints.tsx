@@ -10,12 +10,14 @@ function BucketsPoints() {
     <PageWrapper>
       <Box
         sx={{
-          flexGrow: 1,
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
           flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          gap: 2,
+          width: "100%",
+          px: 2,
+          py: 4,
         }}
       >
         <BucketPointsDisplay />
@@ -23,4 +25,5 @@ function BucketsPoints() {
     </PageWrapper>
   );
 }
+
 export default BucketsPoints;

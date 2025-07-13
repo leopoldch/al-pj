@@ -16,15 +16,15 @@ function PageWrapper({ children }: PageWrapperProps) {
       sx={{
         display: "flex",
         flexDirection: "column",
-        minheight: "100%",
-        backgroundImage: "url(./background.png)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "repeat",
+        minHeight: "100vh",
       }}
     >
       <Header />
-      {children}
+
+      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+        {children}
+      </Box>
+
       <Footer />
     </Box>
   );

@@ -1,63 +1,49 @@
-import { useDeleteMessage, useGetAllMessages } from "../queries/messages";
-import { IconButton, Box } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, IconButton, useMediaQuery, useTheme, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import React, { useEffect } from "react";
+import { useDeleteMessage, useGetAllMessages } from "../queries/messages";
 import { useAuth } from "../hooks/useAuth";
 import { useWebSocketContext } from "../contexts/WebSocketProvider";
 import { WebSocketMessageType } from "../types/websockets";
 import { MessageCreated, MessageDeleted, MessageViewed } from "../types/websocket-interfaces";
 import Imessage from "../types/messages";
+
 function DisplayAllMessages() {
   const { data: msgQuery } = useGetAllMessages();
-  const [messages, setMessages] = React.useState<Imessage[]>([]);
-
-  useEffect(() => {
-    if (msgQuery) {
-      setMessages(msgQuery);
-    }
-  }, [msgQuery]);
-
   const deleteMessage = useDeleteMessage();
   const { user } = useAuth();
-  const handleDelete = (id: number) => {
-    deleteMessage.mutate(id);
-  };
-
   const websocket = useWebSocketContext();
+
+  const [messages, setMessages] = useState<Imessage[]>([]);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  useEffect(() => {
+    if (msgQuery) setMessages(msgQuery);
+  }, [msgQuery]);
 
   useEffect(() => {
     const handleMessageCreated = (data: MessageCreated) => {
-      console.log("Message created:", data);
-      // add at the beginning of the messages array
-      setMessages((prev) => (prev ? [data.message, ...prev] : [data.message]));
-    };
-
-    const handleMessageViewed = (data: MessageViewed) => {
-      console.log("Message updated:", data);
-      // for now not used
+      setMessages((prev) => [data.message, ...prev]);
     };
 
     const handleMessageDeleted = (data: MessageDeleted) => {
-      console.log("Message deleted:", data);
-      setMessages(
-        (prev) => prev?.filter((message) => message.id !== Number(data.message.id)) || []
-      );
+      setMessages((prev) => prev.filter((msg) => msg.id !== Number(data.message.id)));
     };
 
     websocket.bind(WebSocketMessageType.MessageCreated, handleMessageCreated);
-    websocket.bind(WebSocketMessageType.MessageViewed, handleMessageViewed);
     websocket.bind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
+    websocket.bind(WebSocketMessageType.MessageViewed, () => {});
 
     return () => {
       websocket.unbind(WebSocketMessageType.MessageCreated, handleMessageCreated);
-      websocket.unbind(WebSocketMessageType.MessageViewed, handleMessageViewed);
       websocket.unbind(WebSocketMessageType.MessageDeleted, handleMessageDeleted);
+      websocket.unbind(WebSocketMessageType.MessageViewed, () => {});
     };
   }, [websocket]);
 
-  if (!messages) {
-    return <div>Loading...</div>;
-  }
+  if (!messages) return <Box>Loading...</Box>;
 
   const sortedMessages = [...messages].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -66,30 +52,30 @@ function DisplayAllMessages() {
   return (
     <Box
       sx={{
-        maxHeight: "500px",
+        width: isMobile ? "95%" : "80%",
+        flexGrow: 1,
+        minHeight: 0,
+        maxHeight: isMobile ? "50vh" : "70vh",
         overflowY: "auto",
         display: "flex",
         flexDirection: "column",
-        gap: "1rem",
-        p: "1rem",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        width: "80%",
+        gap: theme.spacing(2),
+        p: theme.spacing(1),
+        mx: "auto",
       }}
     >
       {sortedMessages.length === 0 ? (
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-            fontSize: "1.2rem",
-            color: "black",
             backgroundColor: "rgba(128, 128, 128, 0.1)",
+            p: theme.spacing(2),
+            borderRadius: 1,
+            textAlign: "center",
           }}
         >
-          Aucun message trouvé.
+          <Typography variant="body1" color="text.primary" fontSize={isMobile ? "1rem" : "1.1rem"}>
+            Aucun message trouvé.
+          </Typography>
         </Box>
       ) : (
         sortedMessages.map((message) => (
@@ -97,29 +83,45 @@ function DisplayAllMessages() {
             key={message.id}
             sx={{
               position: "relative",
-              p: "1rem",
+              p: isMobile ? 1.5 : 2,
               backgroundColor: "#f9f9f9",
-              borderRadius: "8px",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              borderRadius: 2,
+              boxShadow: theme.shadows[1],
+              fontSize: isMobile ? "0.85rem" : "0.95rem",
+              wordBreak: "break-word",
             }}
           >
             {user?.username === message.name && (
               <IconButton
-                onClick={() => handleDelete(message.id)}
+                onClick={() => deleteMessage.mutate(message.id)}
                 sx={{
                   position: "absolute",
-                  top: "8px",
-                  right: "8px",
+                  top: theme.spacing(1),
+                  right: theme.spacing(1),
+                  p: isMobile ? 0.5 : 1,
                 }}
               >
-                <DeleteIcon />
+                <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
               </IconButton>
             )}
-            <Box sx={{ fontWeight: "bold" }}>{message.name}</Box>
-            <Box sx={{ my: "0.5rem" }}>{message.message}</Box>
-            <Box sx={{ fontSize: "0.8rem", color: "#666" }}>
+            <Typography fontWeight="bold" gutterBottom>
+              {message.name}
+            </Typography>
+            <Typography
+              sx={{
+                mb: theme.spacing(0.5),
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {message.message}
+            </Typography>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              fontSize={isMobile ? "0.7rem" : "0.75rem"}
+            >
               {new Date(message.created_at).toLocaleString()}
-            </Box>
+            </Typography>
           </Box>
         ))
       )}
