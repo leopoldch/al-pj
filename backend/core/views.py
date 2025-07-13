@@ -154,6 +154,8 @@ class BucketPointView(APIView):
 
         bucket_points = BucketPoint.objects.all()
         serializer = BucketPointSerializer(bucket_points, many=True)
+        # sort the bucket points by created_at in descending order
+        serializer.data.sort(key=lambda x: x["created_at"], reverse=True)
         return Response(serializer.data)
 
     def post(self, request):
