@@ -17,6 +17,21 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.conf import settings
 from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
+from core.websocket.messages import WebSocketMessageType
+
+import os
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
+from redis.asyncio import Redis
+
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost")
+redis_client = Redis.from_url(REDIS_URL)
+
+# PLEASE NOTE THAT THIS IS A VERY BASIC IMPLEMENTATION
+# WHICH IS MEANT TO BE USED ONLY BY 2 USERS
+# THIS IS NOT MEANT TO BE USED FOR A GROUP CHAT
 
 
 class WebSocketManager(AsyncWebsocketConsumer):
@@ -28,14 +43,39 @@ class WebSocketManager(AsyncWebsocketConsumer):
         else:
             self.user_group_name = f"user_{user.id}"
             await self.channel_layer.group_add(self.user_group_name, self.channel_name)
+            await self.mark_user_online(user.id)
             await self.accept()
             print(f"User {user} connected to group {self.user_group_name}")
+            await self.channel_layer.group_send(
+                "broadcast",
+                {
+                    "type": "send.message",
+                    "payload": {
+                        "type": WebSocketMessageType.USER_PRESENCE_CONNECTED,
+                        "data": {"user_id": user.id, "name": user.username},
+                    },
+                },
+            )
 
     async def disconnect(self, close_code):
+        print(f"User {self.scope['user']} disconnected")
+        self.scope["user"] = await self.get_user()
+        user = self.scope["user"]
+        await self.mark_user_offline(user.id)
         if hasattr(self, "user_group_name"):
             await self.channel_layer.group_discard(
                 self.user_group_name, self.channel_name
             )
+        await self.channel_layer.group_send(
+            "broadcast",
+            {
+                "type": "send.message",
+                "payload": {
+                    "type": WebSocketMessageType.USER_PRESENCE_DISCONNECTED,
+                    "data": {"user_id": user.id, "name": user.username},
+                },
+            },
+        )
 
     @database_sync_to_async
     def get_user(self):
@@ -55,3 +95,9 @@ class WebSocketManager(AsyncWebsocketConsumer):
 
     async def send_message(self, event):
         await self.send(text_data=json.dumps(event["payload"]))
+
+    async def mark_user_online(self, user_id: int):
+        await redis_client.sadd("online_users", str(user_id))
+
+    async def mark_user_offline(self, user_id: int):
+        await redis_client.srem("online_users", str(user_id))

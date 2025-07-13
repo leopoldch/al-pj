@@ -3,6 +3,7 @@ import React from "react";
 import { mainFontColor } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
 import OptionsButton from "./OptionsButton";
+import PresenceIndicator from "./PresenceIndicator";
 
 function Header() {
   const navigate = useNavigate();
@@ -64,7 +65,10 @@ function Header() {
           </h1>
         </Box>
       </Box>
-      <OptionsButton />
+      <Box sx={{ display: "flex", flexDirection: "row", gap: "100px", alignItems: "center" }}>
+        <PresenceIndicator />
+        <OptionsButton />
+      </Box>
     </Box>
   );
 }

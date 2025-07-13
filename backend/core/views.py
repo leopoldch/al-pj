@@ -13,12 +13,15 @@ from asgiref.sync import async_to_sync
 from core.websocket.utils import send_ws_message_to_user, broadcast_ws_message
 from core.websocket.messages import WebSocketMessageType
 
+import redis
 
 import os
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost")
+r = redis.Redis.from_url(REDIS_URL)
 
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
 
@@ -210,3 +213,36 @@ class BucketPointView(APIView):
             return Response(
                 {"detail": "Bucket point not found."}, status=status.HTTP_404_NOT_FOUND
             )
+
+
+class PresenceIndicatorView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # verify is the other user has an active websocket connection
+        if not request.user or not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication required."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        channel_layer = get_channel_layer()
+        if channel_layer is None:
+            return Response(
+                {"detail": "WebSocket channel layer not available."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        # Check if the other user has an active WebSocket connection
+        other_user = User.objects.exclude(id=request.user.id).first()
+        if not other_user:
+            return Response(
+                {"detail": "No other user found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        is_online = r.sismember("online_users", str(other_user.id))
+        return Response(
+            {
+                "is_online": is_online,
+                "name": other_user.username,
+                "user_id": other_user.id,
+            },
+            status=status.HTTP_200_OK,
+        )

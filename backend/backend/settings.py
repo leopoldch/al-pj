@@ -40,7 +40,7 @@ raw_allowed_cors = os.getenv("ALLOWED_CORS", "http://localhost")
 ALLOWED_CORS = raw_allowed_cors.split(",") if raw_allowed_cors else []
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://al.lchappuis.fr',
+    "https://al.lchappuis.fr",
 ]
 
 
