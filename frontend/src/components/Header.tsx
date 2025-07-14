@@ -27,7 +27,7 @@ function Header() {
         gap: isMobile ? "10px" : "20px",
         paddingTop: isMobile ? "10px" : "5px",
         paddingBottom: isMobile ? "10px" : 0,
-        marginBottom: isMobile ? "0px" : "100px",
+        marginBottom: isMobile ? "0px" : "50px",
       }}
     >
       <Box
