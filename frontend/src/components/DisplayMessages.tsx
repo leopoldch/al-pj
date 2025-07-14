@@ -55,7 +55,7 @@ function DisplayAllMessages() {
         width: isMobile ? "95%" : "80%",
         flexGrow: 1,
         minHeight: 0,
-        maxHeight: isMobile ? "50vh" : "70vh",
+        maxHeight: isMobile ? "45vh" : "60vh",
         overflowY: "auto",
         display: "flex",
         flexDirection: "column",

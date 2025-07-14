@@ -75,6 +75,7 @@ function MainInput() {
                     backgroundColor: "primary.main",
                   },
                   ml: 0.5,
+                  marginRight: -1.5,
                 }}
               >
                 <SendIcon fontSize={isMobile ? "small" : "medium"} />

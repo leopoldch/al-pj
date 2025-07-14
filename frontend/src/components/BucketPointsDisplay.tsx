@@ -143,7 +143,7 @@ export default function BucketPointsDisplay() {
       <List
         sx={{
           width: "100%",
-          height: isMobile ? "50vh" : "60vh",
+          height: isMobile ? "45vh" : "60vh",
           overflowY: "auto",
           pr: 1,
         }}
@@ -154,7 +154,7 @@ export default function BucketPointsDisplay() {
             elevation={3}
             sx={{
               mb: 2,
-              p: isMobile ? 1.5 : 2,
+              p: isMobile ? 1 : 2,
               backgroundColor: "rgba(255, 255, 255, 0.8)",
               borderRadius: 2,
             }}
@@ -162,7 +162,7 @@ export default function BucketPointsDisplay() {
             <Stack
               direction={isMobile ? "column" : "row"}
               alignItems={isMobile ? "flex-start" : "center"}
-              spacing={2}
+              spacing={isMobile ? 1 : 2}
             >
               <Checkbox
                 checked={bucketPoint.completed}
