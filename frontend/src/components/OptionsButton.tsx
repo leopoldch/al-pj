@@ -4,6 +4,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ChecklistIcon from "@mui/icons-material/Checklist";
 import HouseIcon from "@mui/icons-material/House";
+import LockIcon from '@mui/icons-material/Lock';
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function OptionsButton() {
@@ -68,6 +69,19 @@ export default function OptionsButton() {
           >
             <Typography>BucketsPoints</Typography>
             <ChecklistIcon />
+          </Box>
+        </MenuItem>
+          <MenuItem onClick={() => handleOptionClick("bridge")}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "140px",
+            }}
+          >
+            <Typography>Bridge</Typography>
+            <LockIcon />
           </Box>
         </MenuItem>
         <MenuItem onClick={handleLogout}>

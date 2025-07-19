@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import { AuthProvider } from "./contexts/AuthContext";
 import BucketsPoints from "./pages/BucketPoints";
 import WebSocketProvider from "./contexts/WebSocketProvider";
+import Bridge from "./pages/Bridge";
 
 const theme = buildCustomTheme("light");
 
@@ -26,6 +27,7 @@ function App() {
         >
           <Route path="/" element={<Home />} />
           <Route path="/bucketpoints" element={<BucketsPoints />} />
+          <Route path="/bridge" element={<Bridge />} />
         </Route>
         <Route path="/login" element={<Login />} />
       </Routes>
