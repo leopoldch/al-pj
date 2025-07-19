@@ -1,4 +1,5 @@
 import IMessage from "./messages";
+import IBucketPoint from "./bucketspoints";
 
 export interface MessageViewed {
   msgId: string;
@@ -27,4 +28,16 @@ export interface MessageDeleted {
 export interface Presence {
   user_id: number;
   name: string;
+}
+
+export interface BucketPointDeleted {
+  id: number;
+}
+
+export interface BucketPointCreated {
+  data: IBucketPoint;
+}
+
+export interface BucketPointUpdated {
+  data: IBucketPoint;
 }

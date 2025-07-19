@@ -185,14 +185,7 @@ class BucketPointView(APIView):
                 send_ws_message_to_user(
                     uid,
                     WebSocketMessageType.BUCKETPOINT_CREATED,
-                    {
-                        "message": payload,
-                        "sender": {
-                            "id": request.user.id,
-                            "username": request.user.username,
-                            "email": request.user.email,
-                        },
-                    },
+                    {"data": payload},
                 )
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -208,9 +201,9 @@ class BucketPointView(APIView):
 
         try:
             bucket_point = BucketPoint.objects.get(pk=pk)
-            bucket_point.delete()
-
             payload = BucketPointSerializer(bucket_point).data
+            print("Payload for deletion:", payload)
+            bucket_point.delete()
             channel_layer = get_channel_layer()
             if channel_layer is not None:
                 recipients = User.objects.all().values_list("id", flat=True)
@@ -219,12 +212,7 @@ class BucketPointView(APIView):
                         uid,
                         WebSocketMessageType.BUCKETPOINT_DELETED,
                         {
-                            "bucket_point": payload,
-                            "sender": {
-                                "id": request.user.id,
-                                "username": request.user.username,
-                                "email": request.user.email,
-                            },
+                            "id": payload["id"],
                         },
                     )
 
@@ -257,14 +245,7 @@ class BucketPointView(APIView):
                         send_ws_message_to_user(
                             uid,
                             WebSocketMessageType.BUCKETPOINT_UPDATED,
-                            {
-                                "bucket_point": payload,
-                                "sender": {
-                                    "id": request.user.id,
-                                    "username": request.user.username,
-                                    "email": request.user.email,
-                                },
-                            },
+                            {"data": payload},
                         )
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
