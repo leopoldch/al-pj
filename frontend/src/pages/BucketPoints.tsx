@@ -3,7 +3,6 @@ import { Box } from "@mui/material";
 
 import PageWrapper from "../components/PageWrapper";
 import BucketPointsDisplay from "../components/BucketPointsDisplay";
-import BucketPointsInput from "../components/BucketPointsInput";
 
 function BucketsPoints() {
   return (
