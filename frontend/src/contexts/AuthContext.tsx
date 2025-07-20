@@ -25,11 +25,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const baseUrl =
     process.env.NODE_ENV === "development" ? process.env.REACT_APP_API_URL : getBaseURL() + "/api/";
-  console.log("Base URL:", baseUrl);
+  console.debug("Base URL:", baseUrl);
   useEffect(() => {
     if (isSuccess && profile) {
       setUser(profile);
-      console.log("Profile:", profile);
     }
   }, [isSuccess, profile]);
 

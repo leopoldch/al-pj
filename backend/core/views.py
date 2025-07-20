@@ -9,8 +9,7 @@ from django.contrib.auth.models import User
 
 # ws import
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from core.websocket.utils import send_ws_message_to_user, broadcast_ws_message
+from core.websocket.utils import send_ws_message_to_user
 from core.websocket.messages import WebSocketMessageType
 
 import redis
@@ -68,7 +67,6 @@ class MessageView(APIView):
             # FIXME: this is a temporary solution to debug
             users = User.objects.all()
             channel_layer = get_channel_layer()
-            print("Channel Layer: ", channel_layer)
             if channel_layer is not None:
 
                 # FIXME: this is only temporary and works because this app is only
@@ -202,7 +200,6 @@ class BucketPointView(APIView):
         try:
             bucket_point = BucketPoint.objects.get(pk=pk)
             payload = BucketPointSerializer(bucket_point).data
-            print("Payload for deletion:", payload)
             bucket_point.delete()
             channel_layer = get_channel_layer()
             if channel_layer is not None:

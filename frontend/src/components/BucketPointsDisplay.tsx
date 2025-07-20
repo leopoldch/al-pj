@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -27,20 +27,11 @@ import {
 } from "../queries/bucketpoints";
 import IBucketPoint from "../types/bucketspoints";
 import BucketPointsInput from "./BucketPointsInput";
-import { useWebSocketContext } from "../contexts/WebSocketProvider";
-import { WebSocketMessageType } from "../types/websockets";
-import {
-  BucketPointCreated,
-  BucketPointDeleted,
-  BucketPointUpdated,
-} from "../types/websocket-interfaces";
 
 export default function BucketPointsDisplay() {
-  const { data: bucketPointsList, isLoading } = useBucketPointsQuery();
-  const [bucketPoints, setBucketPoints] = useState<IBucketPoint[]>(bucketPointsList || []);
+  const { data: bucketPoints, isLoading } = useBucketPointsQuery();
   const deleteBucketPoint = useDeleteBucketPointMutation();
   const updateBucketPoint = useUpdateBucketPointMutation();
-  const websocket = useWebSocketContext();
 
   const [openModal, setOpenModal] = useState(false);
   const [currentBucketPoint, setCurrentBucketPoint] = useState<IBucketPoint | null>(null);
@@ -78,42 +69,6 @@ export default function BucketPointsDisplay() {
     }
     setOpenModal(false);
   };
-
-  useEffect(() => {
-    const handleDeleteBucketPoint = (data: BucketPointDeleted) => {
-      setBucketPoints((prev) => prev.filter((bp) => bp.id !== data.id));
-    };
-
-    const handleNewBucketPoint = (data: BucketPointCreated) => {
-      console.debug("New bucket point received:", data);
-      const bp = data.data;
-      setBucketPoints((prev) => [bp, ...prev]);
-    };
-
-    const handleUpdateBucketPoint = (data: BucketPointUpdated) => {
-      console.debug("Bucket point updated:", data);
-      const updatedPoint = data.data;
-      setBucketPoints((prev) =>
-        prev.map((bp) => (bp.id === updatedPoint.id ? { ...bp, ...updatedPoint } : bp))
-      );
-    };
-
-    websocket.bind(WebSocketMessageType.BucketPointCreated, handleNewBucketPoint);
-    websocket.bind(WebSocketMessageType.BucketPointDeleted, handleDeleteBucketPoint);
-    websocket.bind(WebSocketMessageType.BucketPointUpdated, handleUpdateBucketPoint);
-
-    return () => {
-      websocket.unbind(WebSocketMessageType.BucketPointCreated, handleNewBucketPoint);
-      websocket.unbind(WebSocketMessageType.BucketPointDeleted, handleDeleteBucketPoint);
-      websocket.unbind(WebSocketMessageType.BucketPointUpdated, handleUpdateBucketPoint);
-    };
-  }, [websocket]);
-
-  useEffect(() => {
-    if (bucketPointsList) {
-      setBucketPoints(bucketPointsList);
-    }
-  }, [bucketPointsList]);
 
   if (isLoading) {
     return <Box>Loading...</Box>;

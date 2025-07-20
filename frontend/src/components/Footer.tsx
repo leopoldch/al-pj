@@ -8,8 +8,6 @@ function Footer() {
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const handleDoubleClick = async () => {
-    console.log("sockImg", sockImg);
-
     for (let i = 0; i < 30; i++) {
       const sock = document.createElement("img");
       sock.src = sockImg;
