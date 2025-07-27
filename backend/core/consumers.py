@@ -52,7 +52,10 @@ class WebSocketManager(AsyncWebsocketConsumer):
                     "type": "send.message",
                     "payload": {
                         "type": WebSocketMessageType.USER_PRESENCE_CONNECTED,
-                        "data": {"user_id": user.id, "name": user.username},
+                        "data": {
+                            "user_id": user.id,
+                            "name": user.get_full_name() or user.username,
+                        },
                     },
                 },
             )
@@ -72,7 +75,10 @@ class WebSocketManager(AsyncWebsocketConsumer):
                 "type": "send.message",
                 "payload": {
                     "type": WebSocketMessageType.USER_PRESENCE_DISCONNECTED,
-                    "data": {"user_id": user.id, "name": user.username},
+                    "data": {
+                        "user_id": user.id,
+                        "name": user.get_full_name() or user.username,
+                    },
                 },
             },
         )

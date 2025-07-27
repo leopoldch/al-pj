@@ -278,7 +278,7 @@ class PresenceIndicatorView(APIView):
         return Response(
             {
                 "is_online": is_online,
-                "name": other_user.username,
+                "name": other_user.get_full_name() or other_user.username,
                 "user_id": other_user.id,
             },
             status=status.HTTP_200_OK,

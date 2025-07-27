@@ -6,13 +6,13 @@ from django.contrib.auth.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "date_joined"]
+        fields = ["id", "username", "first_name", "last_name", "email", "date_joined"]
 
 
 class MessageSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    name = serializers.CharField(source="user.username", read_only=True)
     email = serializers.EmailField(source="user.email", read_only=True)
+    name = serializers.CharField(source="user.get_full_name", read_only=True)
 
     class Meta:
         model = Message
