@@ -44,36 +44,4 @@ jobs:
           MAIL_PORT=${MAIL_PORT} \
           MAIL_USERNAME=${MAIL_USERNAME} \
           MAIL_PASSWORD=${MAIL_PASSWORD} \
-          docker-compose build backend
-
-      - run: |
-          DEBUG=${DEBUG} \
-          SECRET_KEY=${SECRET_KEY} \
-          ALLOWED_HOSTS=${ALLOWED_HOSTS} \
-          ALLOWED_CORS=${ALLOWED_CORS} \
-          DATABASE_NAME=${DATABASE_NAME} \
-          DATABASE_PASSWORD=${DATABASE_PASSWORD} \
-          DATABASE_USERNAME=${DATABASE_USERNAME} \
-          DATABASE_HOST=${DATABASE_HOST} \
-          DATABASE_PORT=${DATABASE_PORT} \
-          MAIL_HOST=${MAIL_HOST} \
-          MAIL_PORT=${MAIL_PORT} \
-          MAIL_USERNAME=${MAIL_USERNAME} \
-          MAIL_PASSWORD=${MAIL_PASSWORD} \
-          docker-compose run --rm backend python manage.py migrate --noinput
-
-      - run: |
-          DEBUG=${DEBUG} \
-          SECRET_KEY=${SECRET_KEY} \
-          ALLOWED_HOSTS=${ALLOWED_HOSTS} \
-          ALLOWED_CORS=${ALLOWED_CORS} \
-          DATABASE_NAME=${DATABASE_NAME} \
-          DATABASE_PASSWORD=${DATABASE_PASSWORD} \
-          DATABASE_USERNAME=${DATABASE_USERNAME} \
-          DATABASE_HOST=${DATABASE_HOST} \
-          DATABASE_PORT=${DATABASE_PORT} \
-          MAIL_HOST=${MAIL_HOST} \
-          MAIL_PORT=${MAIL_PORT} \
-          MAIL_USERNAME=${MAIL_USERNAME} \
-          MAIL_PASSWORD=${MAIL_PASSWORD} \
-          docker-compose up -d --parallel
+          docker-compose up --build -d --parallel
