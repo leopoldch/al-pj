@@ -10,6 +10,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    name = serializers.CharField(source="user.username", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+
     class Meta:
         model = Message
         fields = ["id", "user", "name", "email", "message", "created_at", "status"]
@@ -19,8 +23,6 @@ class MessageSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and request.user.is_authenticated:
             validated_data["user"] = request.user
-            validated_data["name"] = request.user.username
-            validated_data["email"] = request.user.email
         return super().create(validated_data)
 
 

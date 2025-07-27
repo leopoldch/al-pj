@@ -5,7 +5,7 @@ from .models import Message, BucketPoint
 
 
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ("user", "name", "email", "message", "created_at")
+    list_display = ("user", "message", "created_at")
     search_fields = ("name", "email")
     list_filter = ("created_at",)
     ordering = ("-created_at",)

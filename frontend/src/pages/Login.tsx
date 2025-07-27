@@ -8,7 +8,7 @@ function Login() {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
-  const loginMutation = useLogin(); // <-- Doit être là
+  const loginMutation = useLogin();
   const navigate = useNavigate();
 
   useEffect(() => {

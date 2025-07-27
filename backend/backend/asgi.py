@@ -1,4 +1,5 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 import django
 from channels.routing import ProtocolTypeRouter, URLRouter
