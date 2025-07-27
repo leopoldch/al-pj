@@ -44,4 +44,4 @@ jobs:
           MAIL_PORT=${MAIL_PORT} \
           MAIL_USERNAME=${MAIL_USERNAME} \
           MAIL_PASSWORD=${MAIL_PASSWORD} \
-          docker-compose up --build -d --parallel
+          docker-compose up --build -d
