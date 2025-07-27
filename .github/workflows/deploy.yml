@@ -27,7 +27,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - run: |
-          docker image prune -af || true
+          docker-compose down --volumes --remove-orphans || true
+          docker system prune -f || true
 
       - run: |
           DEBUG=${DEBUG} \
@@ -43,4 +44,4 @@ jobs:
           MAIL_PORT=${MAIL_PORT} \
           MAIL_USERNAME=${MAIL_USERNAME} \
           MAIL_PASSWORD=${MAIL_PASSWORD} \
-          docker-compose up --build -d --parallel
+          docker-compose up --build -d
