@@ -19,8 +19,6 @@ RUN pip install daphne
 
 COPY . /app/
 
-RUN poetry run python manage.py migrate --noinput
-
 RUN poetry run python manage.py collectstatic --noinput
 
 FROM python:3.12-slim
@@ -48,4 +46,5 @@ CMD ["/bin/sh", "-c", "\
     : ${MAIL_PASSWORD:?Missing MAIL_PASSWORD} && \
     : ${ALLOWED_HOSTS:?Missing ALLOWED_HOSTS} && \
     : ${ALLOWED_CORS:?Missing ALLOWED_CORS} && \
+    poetry run python manage.py migrate --noinput && \
     daphne -b 0.0.0.0 -p 8000 backend.asgi:application"]
