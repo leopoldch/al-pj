@@ -19,6 +19,8 @@ RUN pip install daphne
 
 COPY . /app/
 
+RUN poetry run python manage.py migrate --noinput
+
 RUN poetry run python manage.py collectstatic --noinput
 
 FROM python:3.12-slim
