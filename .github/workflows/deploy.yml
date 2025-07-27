@@ -44,4 +44,6 @@ jobs:
           MAIL_PORT=${MAIL_PORT} \
           MAIL_USERNAME=${MAIL_USERNAME} \
           MAIL_PASSWORD=${MAIL_PASSWORD} \
+          docker-compose build backend \
+          docker-compose run --rm backend python manage.py migrate --noinput \
           docker-compose up --build -d
