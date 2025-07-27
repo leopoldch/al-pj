@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim
 
 ENV POETRY_VERSION=1.8.2 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -13,7 +13,7 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock /app/
 
 RUN poetry config virtualenvs.create false \
-    && poetry install --only main --no-root
+    && poetry install --only main
 
 RUN pip install daphne
 
@@ -21,14 +21,6 @@ COPY . /app/
 
 RUN poetry run python manage.py collectstatic --noinput
 
-FROM python:3.12-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
-WORKDIR /app
-
-COPY --from=builder /app /app
 
 EXPOSE 8000
 
