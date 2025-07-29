@@ -37,11 +37,7 @@ export const useAddPhotoMutation = (): UseMutationResult<Photo, unknown, AddPhot
         formData.append("location", location);
       }
 
-      const response = await axiosInstance.post(`/photos/${albumId}/`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axiosInstance.post(`/photos/${albumId}/`, formData);
 
       return response.data;
     },

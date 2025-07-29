@@ -28,9 +28,7 @@ export const useAddAlbumMutation = (): UseMutationResult<any, unknown, AddAlbumI
       if (image) {
         formData.append("image", image);
       }
-      const response = await axiosInstance.post("/albums/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axiosInstance.post("/albums/", formData);
       return response.data;
     },
     onSuccess: () => {
@@ -65,9 +63,7 @@ export const useUpdateAlbumMutation = (): UseMutationResult<
         formData.append("image", image);
       }
 
-      const response = await axiosInstance.put(`/albums/${id}/`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axiosInstance.put(`/albums/${id}/`, formData);
 
       return response.data;
     },
