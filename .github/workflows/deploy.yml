@@ -22,6 +22,10 @@ jobs:
       MAIL_PORT: ${{ secrets.MAIL_PORT }}
       MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
       MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_ACCESS_SECRET: ${{ secrets.AWS_ACCESS_SECRET }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
 
     steps:
       - uses: actions/checkout@v4
@@ -44,4 +48,8 @@ jobs:
           MAIL_PORT=${MAIL_PORT} \
           MAIL_USERNAME=${MAIL_USERNAME} \
           MAIL_PASSWORD=${MAIL_PASSWORD} \
+          AWS_ACCESS_KEY=${AWS_ACCESS_KEY} \
+          AWS_ACCESS_SECRET=${AWS_ACCESS_SECRET} \
+          AWS_REGION=${AWS_REGION} \
+          AWS_BUCKET_NAME=${AWS_BUCKET_NAME} \
           docker-compose up --build -d

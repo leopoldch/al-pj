@@ -1,0 +1,91 @@
+import React from "react";
+import { Card, CardContent, CardMedia, Typography, CardActionArea, Box } from "@mui/material";
+import HideImageIcon from "@mui/icons-material/HideImage";
+import { Album } from "../types/album";
+import AlbumEditModal from "./UpdateAlbumModal";
+
+function AlbumCard({ album }: { album: Album }) {
+  const handleClick = () => {
+    // Handle album click, e.g., navigate to album details page
+    console.log(`Album id : ${album.id}`);
+  };
+
+  return (
+    <Card
+      sx={{
+        height: 320,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        borderRadius: 2,
+        boxShadow: 3,
+        backgroundColor: "white",
+      }}
+      onClick={handleClick}
+    >
+      <CardActionArea
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "stretch",
+        }}
+      >
+        <Box sx={{ height: 180, width: "100%", position: "relative" }}>
+          {album.cover_image ? (
+            <CardMedia
+              component="img"
+              height="180"
+              image={album.cover_image}
+              alt={`Couverture de l'album ${album.title}`}
+              sx={{ objectFit: "cover", height: "100%" }}
+            />
+          ) : (
+            <Box
+              sx={{
+                height: "100%",
+                backgroundColor: "#f0f0f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <HideImageIcon sx={{ fontSize: 48, color: "#bdbdbd" }} />
+            </Box>
+          )}
+
+          {/* Bouton éditer en haut à droite */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              zIndex: 1,
+              backgroundColor: "rgba(255, 255, 255, 0.7)",
+              borderRadius: "50%",
+            }}
+            onClick={(e) => e.stopPropagation()} // pour éviter d’activer handleClick
+          >
+            <AlbumEditModal album={album} />
+          </Box>
+        </Box>
+
+        <CardContent sx={{ flex: 1, width: "100%" }}>
+          <Typography gutterBottom variant="h6" component="div" noWrap>
+            {album.title}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" noWrap>
+            {album.description}
+          </Typography>
+          <Box mt={1}>
+            <Typography variant="caption" color="text.secondary">
+              Créé le {new Date(album.created_at).toLocaleDateString("fr-FR")}
+            </Typography>
+          </Box>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+}
+
+export default AlbumCard;

@@ -38,4 +38,8 @@ CMD ["/bin/sh", "-c", "\
     : ${MAIL_PASSWORD:?Missing MAIL_PASSWORD} && \
     : ${ALLOWED_HOSTS:?Missing ALLOWED_HOSTS} && \
     : ${ALLOWED_CORS:?Missing ALLOWED_CORS} && \
+    : ${AWS_ACCESS_KEY:?Missing AWS_ACCESS_KEY} && \
+    : ${AWS_ACCESS_SECRET:?Missing AWS_ACCESS_SECRET} && \
+    : ${AWS_REGION:?Missing AWS_REGION} && \
+    : ${AWS_BUCKET_NAME:?Missing AWS_BUCKET_NAME} && \
     daphne -b 0.0.0.0 -p 8000 backend.asgi:application"]

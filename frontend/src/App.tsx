@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import { AuthProvider } from "./contexts/AuthContext";
 import BucketsPoints from "./pages/BucketPoints";
 import WebSocketProvider from "./contexts/WebSocketProvider";
+import Albums from "./pages/Albums";
 
 const theme = buildCustomTheme("light");
 
@@ -26,6 +27,7 @@ function App() {
         >
           <Route path="/" element={<Home />} />
           <Route path="/bucketpoints" element={<BucketsPoints />} />
+          <Route path="/albums" element={<Albums />} />
         </Route>
         <Route path="/login" element={<Login />} />
       </Routes>
