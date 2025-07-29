@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardMedia, Typography, Box, Stack, Modal, Backdrop } from "@mui/material";
+import { Card, CardMedia, Typography, Box, Stack, Modal, Backdrop, useTheme } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
 
@@ -22,6 +22,9 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const theme = useTheme();
+  const isMobile = theme.breakpoints.down("sm");
 
   return (
     <>
@@ -136,40 +139,112 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
       >
         <Box
           sx={{
-            position: "absolute" as const,
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            maxWidth: "90vw",
-            maxHeight: "90vh",
-            outline: "none",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 2,
+            boxSizing: "border-box",
           }}
         >
+          {/* Bouton de fermeture global (haut-droite écran) */}
           <Box
-            component="img"
-            src={photo.image_url}
-            alt={photo.caption || "Photo"}
+            onClick={handleClose}
             sx={{
-              width: "100%",
-              height: "auto",
-              borderRadius: 2,
-              maxHeight: "80vh",
-              display: "block",
+              position: "fixed",
+              top: 16,
+              right: 16,
+              zIndex: 1301,
+              backgroundColor: "rgba(0,0,0,0.6)",
+              borderRadius: "50%",
+              width: 36,
+              height: 36,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
             }}
-          />
-
-          <Stack spacing={1} mt={2} px={1} color="white" alignItems="flex-start">
-            {photo.caption && <Typography variant="body2">{photo.caption}</Typography>}
-            {photo.location && (
-              <Box display="flex" alignItems="center" gap={0.5}>
-                <LocationOnIcon fontSize="small" />
-                <Typography variant="body2">{photo.location}</Typography>
-              </Box>
-            )}
-            <Typography variant="caption">
-              {new Date(photo.created_at).toLocaleDateString("fr-FR")}
+          >
+            <Typography color="white" fontWeight="bold" fontSize={20}>
+              ×
             </Typography>
-          </Stack>
+          </Box>
+
+          {/* Conteneur image + infos */}
+          <Box
+            sx={{
+              maxWidth: { xs: "95vw", sm: "90vw", md: "70vw" },
+              maxHeight: { xs: "90vh", sm: "85vh", md: "80vh" },
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 2,
+              overflow: "hidden",
+              boxShadow: 5,
+              backgroundColor: "#1e1e1e",
+            }}
+          >
+            {/* Image */}
+            <Box
+              component="img"
+              src={photo.image_url}
+              alt={photo.caption || "Photo"}
+              sx={{
+                width: "100%",
+                height: "auto",
+                objectFit: "contain",
+                maxHeight: "calc(80vh - 48px)", // 48px = hauteur de la barre infos
+                backgroundColor: "black",
+              }}
+            />
+
+            {/* Footer d'informations */}
+            <Box
+              sx={{
+                width: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: 2,
+                py: 1,
+                color: "white",
+                fontSize: 14,
+              }}
+            >
+              {/* Légende et lieu */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                {photo.caption && (
+                  <Typography variant="body2" color="white" sx={{ whiteSpace: "nowrap" }}>
+                    {photo.caption}
+                  </Typography>
+                )}
+                {photo.location && (
+                  <Box display="flex" alignItems="center" gap={0.5}>
+                    <LocationOnIcon fontSize="small" sx={{ color: "white" }} />
+                    <Typography variant="body2" color="white" sx={{ whiteSpace: "nowrap" }}>
+                      {photo.location}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+
+              {/* Date */}
+              <Typography variant="caption" color="white" sx={{ whiteSpace: "nowrap" }}>
+                {new Date(photo.created_at).toLocaleDateString("fr-FR")}
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </Modal>
     </>
