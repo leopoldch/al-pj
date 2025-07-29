@@ -5,6 +5,7 @@ export interface IAlbum {
   cover_image: string;
   created_at: string;
   updated_at: string;
+  nb_photos: number;
 }
 
 export interface AddAlbumInput {
@@ -18,4 +19,6 @@ export interface Album {
   description: string;
   cover_image?: string;
   created_at: string;
+  updated_at: string;
+  nb_photos: number;
 }

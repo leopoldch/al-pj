@@ -14,6 +14,7 @@ AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+
 def save_to_cloud(file, folder_album_id=-1) -> str:
     file_name = f"{uuid4()}_{file.name}"
     if DEBUG:

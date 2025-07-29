@@ -77,6 +77,9 @@ function AlbumCard({ album }: { album: Album }) {
           <Typography variant="body2" color="text.secondary" noWrap>
             {album.description}
           </Typography>
+          <Typography variant="body2" color="text.secondary" noWrap>
+            {album.nb_photos} photos
+          </Typography>
           <Box mt={1}>
             <Typography variant="caption" color="text.secondary">
               Créé le {new Date(album.created_at).toLocaleDateString("fr-FR")}

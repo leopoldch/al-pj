@@ -69,13 +69,13 @@ class WebSocketManager(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(
                 self.user_group_name, self.channel_name
             )
-        
+
         username = ""
-        try :
+        try:
             username = user.get_full_name()
         except Exception as e:
             username = user.username
-        
+
         await self.channel_layer.group_send(
             "broadcast",
             {

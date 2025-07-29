@@ -42,6 +42,8 @@ class BucketPointSerializer(serializers.ModelSerializer):
 
 
 class AlbumSerializer(serializers.ModelSerializer):
+    nb_photos = serializers.SerializerMethodField()
+
     class Meta:
         model = Album
         fields = [
@@ -51,8 +53,12 @@ class AlbumSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "cover_image",
+            "nb_photos",
         ]
         read_only_fields = ["created_at", "updated_at"]
+
+    def get_nb_photos(self, album):
+        return Photo.objects.filter(album=album).count()
 
     def create(self, validated_data):
         request = self.context.get("request")
