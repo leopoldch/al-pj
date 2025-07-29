@@ -309,9 +309,9 @@ class AlbumView(APIView):
             )
 
         data = request.data.copy()
-        #if "image" in request.FILES and request.FILES["image"]:
-        #    link = save_to_cloud(request.FILES["image"])
-        #    data["cover_image"] = link
+        if "image" in request.FILES and request.FILES["image"]:
+            link = save_to_cloud(request.FILES["image"])
+            data["cover_image"] = link
 
         serializer = AlbumSerializer(data=data)
         if serializer.is_valid():
