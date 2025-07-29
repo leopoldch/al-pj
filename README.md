@@ -12,6 +12,9 @@ Technologies: **React**, **Material-UI (MUI)**, **React Query**
 ### Installation and Usage
 
 ```bash
+
+cd frontend/
+
 npm install
 
 npm start
@@ -29,12 +32,22 @@ Technology: **Django**
 
 ### Installation and Usage
 
+> Make sure to have poetry installed and ready to use (necessary to run the app)
+
 ```bash
+
+cd backend
+
+poetry shell
+
+poetry install
+
 python manage.py makemigrations
 
 python manage.py migrate
 
 python manage.py runserver
+
 ```
 
 ---
@@ -62,22 +75,16 @@ Before running `docker-compose up`, configure the following environment variable
 | `MAIL_PORT`         | SMTP server port                      | `587`                      |
 | `MAIL_USERNAME`     | SMTP username                         | `user@example.com`         |
 | `MAIL_PASSWORD`     | SMTP password                         | `your-password`            |
+| `AWS_ACCESS_SECRET` | AWS secret key                        | `xxxxxxxxxxxxx`            |
+| `AWS_BUCKET_NAME`   | AWS bucket name                       | `my-bucket-name`           |
+| `AWS_REGION`        | AWS region you are using              | `eu-west-3`                |
+| `AWS_ACCESS_KEY`    | AWS access key                        | `abcdefgh`                 |
 
-### Launching
+
+### Launching using docker-composer
+
+> MAKE SURE TO HAVE DECLARED THE ENV VARIABLES BEFORE RUNNING THE COMMAND BELOW
 
 ```bash
 docker-compose up --build
 ```
-
----
-
-## TODO
-
-- [ ] Add a development container
-- [X] Add a `TODO` feature
-- [ ] Write full testing suites (unit and integration tests)
-- [X] Set up CI/CD (Continuous Integration and Delivery)
-- [ ] Improve frontend responsiveness for mobile devices
-- [X] Implement user authentication and authorization
-- [X] Secure environment variables management (use `.env` file with Docker Compose)
-- [X] Configure HTTPS for production
