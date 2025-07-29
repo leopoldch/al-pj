@@ -3,6 +3,7 @@ import { Box, Button, Menu, MenuItem, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ChecklistIcon from "@mui/icons-material/Checklist";
+import CollectionsIcon from "@mui/icons-material/Collections";
 import HouseIcon from "@mui/icons-material/House";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -68,6 +69,19 @@ export default function OptionsButton() {
           >
             <Typography>BucketsPoints</Typography>
             <ChecklistIcon />
+          </Box>
+        </MenuItem>
+        <MenuItem onClick={() => handleOptionClick("albums")}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "140px",
+            }}
+          >
+            <Typography>Albums</Typography>
+            <CollectionsIcon />
           </Box>
         </MenuItem>
         <MenuItem onClick={handleLogout}>

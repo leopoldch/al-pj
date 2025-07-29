@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Message, BucketPoint
+from .models import Message, BucketPoint, Album, Photo
 from django.contrib.auth.models import User
 
 
@@ -39,3 +39,51 @@ class BucketPointSerializer(serializers.ModelSerializer):
         if request and not request.user.is_authenticated:
             return None
         return super().create(validated_data)
+
+
+class AlbumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Album
+        fields = [
+            "id",
+            "title",
+            "description",
+            "created_at",
+            "updated_at",
+            "cover_image",
+        ]
+        read_only_fields = ["created_at", "updated_at"]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and not request.user.is_authenticated:
+            return None
+        return super().create(validated_data)
+
+
+class PhotoSerializer(serializers.ModelSerializer):
+    album = AlbumSerializer(read_only=True)
+
+    class Meta:
+        model = Photo
+        fields = [
+            "id",
+            "album",
+            "image_url",
+            "caption",
+            "created_at",
+            "updated_at",
+            "location",
+        ]
+        read_only_fields = ["created_at", "updated_at"]
+
+
+def create(self, validated_data):
+    request = self.context.get("request")
+    if request and not request.user.is_authenticated:
+        return None
+    album = self.context.get("album")
+    if not album:
+        raise serializers.ValidationError({"album": "Album manquant"})
+
+    return Photo.objects.create(album=album, **validated_data)
