@@ -151,30 +151,56 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
             boxSizing: "border-box",
           }}
         >
-          {/* Bouton de fermeture global (haut-droite écran) */}
           <Box
-            onClick={handleClose}
             sx={{
               position: "fixed",
               top: 16,
               right: 16,
-              zIndex: 1301,
-              backgroundColor: "rgba(0,0,0,0.6)",
-              borderRadius: "50%",
-              width: 36,
-              height: 36,
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
+              gap: 1,
+              zIndex: 1301,
             }}
           >
-            <Typography color="white" fontWeight="bold" fontSize={20}>
-              ×
-            </Typography>
+            <Box
+              component="a"
+              href={photo.image_url}
+              download
+              sx={{
+                backgroundColor: "rgba(0,0,0,0.6)",
+                borderRadius: "50%",
+                width: 36,
+                height: 36,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                textDecoration: "none",
+              }}
+            >
+              <Typography color="white" fontWeight="bold" fontSize={16}>
+                ↓
+              </Typography>
+            </Box>
+
+            <Box
+              onClick={handleClose}
+              sx={{
+                backgroundColor: "rgba(0,0,0,0.6)",
+                borderRadius: "50%",
+                width: 36,
+                height: 36,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
+            >
+              <Typography color="white" fontWeight="bold" fontSize={20}>
+                ×
+              </Typography>
+            </Box>
           </Box>
 
-          {/* Conteneur image + infos */}
           <Box
             sx={{
               maxWidth: { xs: "95vw", sm: "90vw", md: "70vw" },
@@ -187,7 +213,6 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
               backgroundColor: "#1e1e1e",
             }}
           >
-            {/* Image */}
             <Box
               component="img"
               src={photo.image_url}
@@ -196,12 +221,11 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
                 width: "100%",
                 height: "auto",
                 objectFit: "contain",
-                maxHeight: "calc(80vh - 48px)", // 48px = hauteur de la barre infos
+                maxHeight: "calc(80vh - 48px)",
                 backgroundColor: "black",
               }}
             />
 
-            {/* Footer d'informations */}
             <Box
               sx={{
                 width: "100%",
@@ -215,7 +239,6 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
                 fontSize: 14,
               }}
             >
-              {/* Légende et lieu */}
               <Box
                 sx={{
                   display: "flex",
@@ -239,7 +262,6 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
                 )}
               </Box>
 
-              {/* Date */}
               <Typography variant="caption" color="white" sx={{ whiteSpace: "nowrap" }}>
                 {new Date(photo.created_at).toLocaleDateString("fr-FR")}
               </Typography>
