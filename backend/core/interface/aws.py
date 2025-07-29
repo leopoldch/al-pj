@@ -17,12 +17,12 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 def save_to_cloud(file, folder_album_id=-1) -> str:
     file_name = f"{uuid4()}_{file.name}"
-    if DEBUG:
-        file_name = f"debug_{file_name}"
     if folder_album_id != -1:
         file_key = f"{folder_album_id}/{file_name}"
     else:
         file_key = file_name
+    if DEBUG:
+        file_key = f"debug_{file_key}"
 
     s3 = boto3.client(
         "s3",
