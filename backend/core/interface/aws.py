@@ -14,7 +14,7 @@ AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 
 
 def save_to_cloud(file, folder_album_id=-1) -> str:
-    
+
     file_name = f"{uuid4()}_{file.name}"
     if folder_album_id != -1:
         file_key = f"{folder_album_id}/{file_name}"
@@ -69,4 +69,3 @@ def delete_from_cloud(file_url: str) -> bool:
     except Exception as e:
         print(f"Échec de la suppression du fichier : {e}")
         return False
-    

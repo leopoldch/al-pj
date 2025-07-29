@@ -77,12 +77,13 @@ class PhotoSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at"]
 
-    def create(self, validated_data):
-        request = self.context.get("request")
-        album_id = self.context.get("album_id")
-        if request and not request.user.is_authenticated:
-            return None
-        if not album_id:
-            raise serializers.ValidationError("Album ID is required.")
-        validated_data["album_id"] = album_id
-        return super().create(validated_data)
+
+def create(self, validated_data):
+    request = self.context.get("request")
+    if request and not request.user.is_authenticated:
+        return None
+    album = self.context.get("album")
+    if not album:
+        raise serializers.ValidationError({"album": "Album manquant"})
+
+    return Photo.objects.create(album=album, **validated_data)

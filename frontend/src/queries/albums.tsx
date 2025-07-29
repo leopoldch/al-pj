@@ -2,6 +2,7 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import { IAlbum, AddAlbumInput } from "../types/album";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useAlbums = (): UseQueryResult<IAlbum[], unknown> => {
   const { axiosInstance } = useAuth();
@@ -17,6 +18,7 @@ export const useAlbums = (): UseQueryResult<IAlbum[], unknown> => {
 
 export const useAddAlbumMutation = (): UseMutationResult<any, unknown, AddAlbumInput> => {
   const { axiosInstance } = useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ name, description, image }: AddAlbumInput) => {
@@ -31,6 +33,9 @@ export const useAddAlbumMutation = (): UseMutationResult<any, unknown, AddAlbumI
       });
       return response.data;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["albums"] });
+    },
   });
 };
 
@@ -40,6 +45,7 @@ export const useUpdateAlbumMutation = (): UseMutationResult<
   Partial<IAlbum> & { id: number; image?: File }
 > => {
   const { axiosInstance } = useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (album) => {
@@ -64,6 +70,9 @@ export const useUpdateAlbumMutation = (): UseMutationResult<
       });
 
       return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["albums"] });
     },
   });
 };

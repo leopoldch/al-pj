@@ -48,7 +48,7 @@ function Header() {
           }}
         >
           <img
-            src="./icon.png"
+            src={process.env.PUBLIC_URL + "/icon.png"}
             alt="Logo"
             style={{
               width: isMobile ? "70px" : "100px",

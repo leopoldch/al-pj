@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from channels.layers import get_channel_layer
 from core.websocket.utils import send_ws_message_to_user
 from core.websocket.messages import WebSocketMessageType
-from core.interface.aws import delete_from_cloud, save_to_cloud,delete_from_cloud
+from core.interface.aws import delete_from_cloud, save_to_cloud, delete_from_cloud
 import redis
 import os
 from dotenv import load_dotenv, find_dotenv
@@ -287,6 +287,7 @@ class PresenceIndicatorView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 class AlbumView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -320,7 +321,6 @@ class AlbumView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
     def put(self, request, album_id):
         if not request.user or not request.user.is_authenticated:
             return Response(
@@ -338,7 +338,7 @@ class AlbumView(APIView):
                 data["cover_image"] = link
             serializer = AlbumSerializer(album, data=data, partial=True)
             if serializer.is_valid():
-                #updated_album = serializer.save()
+                # updated_album = serializer.save()
                 _ = serializer.save()
                 # Notify other users about the update with websocket
                 # TODO: Implement websocket notification
@@ -348,10 +348,10 @@ class AlbumView(APIView):
             return Response(
                 {"detail": "Album not found."}, status=status.HTTP_404_NOT_FOUND
             )
-    
+
     def delete(self, request):
         # TODO: Implement delete album functionality
-        # maybe delete all photos in the album too ? 
+        # maybe delete all photos in the album too ?
         pass
 
 
@@ -379,12 +379,29 @@ class PhotoView(APIView):
         pass
 
     def post(self, request, album_id):
-        # !! must have the designated album in the request (and be valid)
         if not request.user or not request.user.is_authenticated:
             return Response(
                 {"detail": "Authentication required."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        file = request.data
-        # link  = save_to_cloud(file)
-        # constituer l'objet
+        try:
+            album = Album.objects.get(pk=album_id)
+            data = request.data.copy()
+            if "image" in request.FILES and request.FILES["image"]:
+                link = save_to_cloud(request.FILES["image"], folder_album_id=album_id)
+                data["image_url"] = link
+            data["album"] = album_id
+
+            serializer = PhotoSerializer(
+                data=data, context={"request": request, "album": album}
+            )
+
+            if serializer.is_valid():
+                serializer.save(album=album)
+                # TODO: Notify other users via websocket
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Album.DoesNotExist:
+            return Response(
+                {"detail": "Album not found."}, status=status.HTTP_404_NOT_FOUND
+            )

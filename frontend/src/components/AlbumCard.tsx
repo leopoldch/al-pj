@@ -3,11 +3,12 @@ import { Card, CardContent, CardMedia, Typography, CardActionArea, Box } from "@
 import HideImageIcon from "@mui/icons-material/HideImage";
 import { Album } from "../types/album";
 import AlbumEditModal from "./UpdateAlbumModal";
+import { useNavigate } from "react-router-dom";
 
 function AlbumCard({ album }: { album: Album }) {
+  const navigate = useNavigate();
   const handleClick = () => {
-    // Handle album click, e.g., navigate to album details page
-    console.log(`Album id : ${album.id}`);
+    navigate(`/photos/${album.id}`);
   };
 
   return (
@@ -54,7 +55,6 @@ function AlbumCard({ album }: { album: Album }) {
             </Box>
           )}
 
-          {/* Bouton éditer en haut à droite */}
           <Box
             sx={{
               position: "absolute",
@@ -64,7 +64,7 @@ function AlbumCard({ album }: { album: Album }) {
               backgroundColor: "rgba(255, 255, 255, 0.7)",
               borderRadius: "50%",
             }}
-            onClick={(e) => e.stopPropagation()} // pour éviter d’activer handleClick
+            onClick={(e) => e.stopPropagation()}
           >
             <AlbumEditModal album={album} />
           </Box>
