@@ -1,5 +1,5 @@
 import { Box, Card, TextField, Button, Typography } from "@mui/material"
-import React, { useEffect } from "react"
+import React, { useCallback, useEffect } from "react"
 import { useLogin } from "../queries/auth"
 import { useNavigate } from "react-router-dom"
 import Footer from "../components/Footer"
@@ -11,6 +11,31 @@ function Login() {
     const loginMutation = useLogin()
     const navigate = useNavigate()
 
+    const handleSubmit = useCallback(
+        (e: React.FormEvent) => {
+            e.preventDefault()
+            if (!username || !password) {
+                setError("Veuillez remplir tous les champs.")
+                return
+            }
+            setError("")
+
+            loginMutation.mutate(
+                { username, password },
+                {
+                    onSuccess: () => {
+                        navigate("/")
+                    },
+                    onError: (error) => {
+                        setError("Une erreur s'est produite lors de la connexion.")
+                        console.error(error)
+                    },
+                }
+            )
+        },
+        [username, password, loginMutation, navigate]
+    )
+
     useEffect(() => {
         const handleEnterKey: (e: KeyboardEvent) => void = (e: KeyboardEvent) => {
             if (e.key === "Enter") {
@@ -21,29 +46,7 @@ function Login() {
         return () => {
             window.removeEventListener("keydown", handleEnterKey)
         }
-    }, [username, password])
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!username || !password) {
-            setError("Veuillez remplir tous les champs.")
-            return
-        }
-        setError("")
-
-        loginMutation.mutate(
-            { username, password },
-            {
-                onSuccess: () => {
-                    navigate("/")
-                },
-                onError: (error) => {
-                    setError("Une erreur s'est produite lors de la connexion.")
-                    console.error(error)
-                },
-            }
-        )
-    }
+    }, [username, password, handleSubmit])
 
     return (
         <Box

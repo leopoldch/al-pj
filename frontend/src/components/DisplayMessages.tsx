@@ -5,7 +5,7 @@ import { useDeleteMessage, useGetAllMessages } from "../queries/messages"
 import { useAuth } from "../hooks/useAuth"
 import { useWebSocketContext } from "../contexts/WebSocketProvider"
 import { WebSocketMessageType } from "../types/websockets"
-import { MessageCreated, MessageDeleted, MessageViewed } from "../types/websocket-interfaces"
+import { MessageCreated, MessageDeleted } from "../types/websocket-interfaces"
 import Imessage from "../types/messages"
 
 function DisplayAllMessages() {

@@ -14,7 +14,8 @@ type WithChildren = {
 
 const optionalWebSocketContext = createOptionalContext<IWebSocketContext>("WebSocketContext")
 export const useWebSocketContext = optionalWebSocketContext.useOptionalContext
-export default ({ children }: WithChildren) => {
+
+const WebSocketProvider = ({ children }: WithChildren) => {
     const webSocketClientRef = useRef<WebSocketClient>(new WebSocketClient())
     const { token: accessToken } = useAuth()
     const currentUrl = window.location.href
@@ -34,7 +35,7 @@ export default ({ children }: WithChildren) => {
     useEffect(() => {
         if (!accessToken) return
         webSocketClientRef.current.connect(wsUrlFormatted, accessToken)
-    }, [accessToken])
+    }, [accessToken, wsUrlFormatted])
     const value = useMemo(
         () => ({
             bind: webSocketClientRef.current.bind.bind(webSocketClientRef.current),
@@ -49,3 +50,5 @@ export default ({ children }: WithChildren) => {
         </optionalWebSocketContext.Context.Provider>
     )
 }
+
+export default WebSocketProvider

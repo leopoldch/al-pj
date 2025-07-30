@@ -1,6 +1,5 @@
 import { Box } from "@mui/material"
 import React, { useEffect, useState } from "react"
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord"
 import { useWebSocketContext } from "../contexts/WebSocketProvider"
 import { useAuth } from "../hooks/useAuth"
 import { WebSocketMessageType } from "../types/websockets"
@@ -44,7 +43,7 @@ function PresenceIndicator() {
             websocket.unbind(WebSocketMessageType.UserPresenceConnected, onConnect)
             websocket.unbind(WebSocketMessageType.UserPresenceDisconnected, onDisconnect)
         }
-    }, [websocket, userName, user?.id])
+    }, [websocket, userName, user?.id, user])
 
     if (isLoading) return <Box>Loading...</Box>
     if (isError || !userName) return <Box>Error loading presence data</Box>

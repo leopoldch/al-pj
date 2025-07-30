@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Card, CardMedia, Typography, Box, Stack, Modal, Backdrop, useTheme } from "@mui/material"
+import { Card, CardMedia, Typography, Box, Stack, Modal, Backdrop } from "@mui/material"
 import LocationOnIcon from "@mui/icons-material/LocationOn"
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto"
 
@@ -22,9 +22,6 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
 
     const handleOpen = () => setOpen(true)
     const handleClose = () => setOpen(false)
-
-    const theme = useTheme()
-    const isMobile = theme.breakpoints.down("sm")
 
     return (
         <>
