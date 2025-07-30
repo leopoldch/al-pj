@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useMemo } from "react"
+import React, { createContext, useState, useEffect, useMemo, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import axios, { AxiosInstance } from "axios"
 import { HttpStatusCode } from "axios"
@@ -34,13 +34,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }, [isSuccess, profile])
 
-    useEffect(() => {
-        if (!token) {
-            logout()
-            navigate("/login")
-        }
-    }, [token])
-
     const login = async (email: string, password: string) => {
         const res = await fetch(baseUrl + "/login", {
             method: "POST",
@@ -53,11 +46,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setToken(token)
     }
 
-    const logout = () => {
+    const logout = useCallback(() => {
         localStorage.removeItem("token")
         setToken(null)
         setUser(null)
-    }
+    }, [])
+
+    useEffect(() => {
+        if (!token) {
+            logout()
+            navigate("/login")
+        }
+    }, [token, logout, navigate])
 
     const axiosInstance = useMemo(() => {
         if (!token) {
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
         )
         return instance
-    }, [token, logout])
+    }, [token, logout, baseUrl])
 
     return (
         <AuthContext.Provider
