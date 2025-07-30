@@ -9,7 +9,9 @@ const buildWebSocketCallbacks = (): WebSocketCallbacks => {
     for (const messageType of Object.values(WebSocketMessageType)) {
         // TODO: type this properly to prevent mistakes
         // The end result of the function is still typed properly
-        webSocketCallback[messageType] = new Set() as any
+        webSocketCallback[messageType as WebSocketMessageType] = new Set<
+            WebSocketCallback<typeof messageType>
+        >()
     }
     return webSocketCallback
 }
