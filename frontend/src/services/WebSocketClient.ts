@@ -4,15 +4,18 @@ type WebSocketCallback<T extends WebSocketMessageType> = (data: WebSocketMessage
 type WebSocketCallbacks = {
     [key in WebSocketMessageType]: Set<WebSocketCallback<key>>
 }
+
 const buildWebSocketCallbacks = (): WebSocketCallbacks => {
     const webSocketCallback = {} as WebSocketCallbacks
     for (const messageType of Object.values(WebSocketMessageType)) {
         // TODO: type this properly to prevent mistakes
         // The end result of the function is still typed properly
-        webSocketCallback[messageType] = new Set() as any
+        // next line is marked as eslint disabled to avoid TypeScript error
+        webSocketCallback[messageType] = new Set() as any // eslint-disable-line
     }
     return webSocketCallback
 }
+
 export class WebSocketClient {
     private webSocket: WebSocket | null = null
     private accessToken: string | null = null

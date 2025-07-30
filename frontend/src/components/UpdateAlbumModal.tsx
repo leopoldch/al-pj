@@ -38,7 +38,7 @@ function AlbumEditModal({ album }: { album: Album }) {
             </IconButton>
 
             <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>Modifier l'album</DialogTitle>
+                <DialogTitle>Modifier l&apos;album</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} mt={1}>
                         <TextField

@@ -16,7 +16,7 @@ export const useAlbums = (): UseQueryResult<IAlbum[], unknown> => {
     })
 }
 
-export const useAddAlbumMutation = (): UseMutationResult<any, unknown, AddAlbumInput> => {
+export const useAddAlbumMutation = (): UseMutationResult<IAlbum, unknown, AddAlbumInput> => {
     const { axiosInstance } = useAuth()
     const queryClient = useQueryClient()
 
@@ -38,7 +38,7 @@ export const useAddAlbumMutation = (): UseMutationResult<any, unknown, AddAlbumI
 }
 
 export const useUpdateAlbumMutation = (): UseMutationResult<
-    any,
+    IAlbum,
     unknown,
     Partial<IAlbum> & { id: number; image?: File }
 > => {
