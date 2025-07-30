@@ -1,4 +1,5 @@
-name: Very tiny tests
+name: CI tests -  Build and Lint
+description: This workflow builds the frontend application and runs lint checks.
 
 on:
   push:
