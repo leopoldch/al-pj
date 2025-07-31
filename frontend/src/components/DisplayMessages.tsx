@@ -95,7 +95,7 @@ function DisplayAllMessages() {
                             wordBreak: "break-word",
                         }}
                     >
-                        {user?.username === message.name && (
+                        {user?.email === message.email && (
                             <IconButton
                                 onClick={() => deleteMessage.mutate(message.id)}
                                 sx={{
