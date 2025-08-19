@@ -14,12 +14,16 @@ import {
     Checkbox,
     Paper,
     Typography,
-    InputBase,
+    ToggleButtonGroup,
+    ToggleButton,
+    InputAdornment,
     useTheme,
     useMediaQuery,
+    Chip,
 } from "@mui/material"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
+import SearchRounded from "@mui/icons-material/SearchRounded"
 import {
     useBucketPointsQuery,
     useDeleteBucketPointMutation,
@@ -47,6 +51,7 @@ export default function BucketPointsDisplay() {
     const [editTitle, setEditTitle] = useState("")
     const [editDescription, setEditDescription] = useState("")
     const [search, setSearch] = useState("")
+    const [maskCompleted, setMaskCompleted] = useState<boolean>(false)
 
     const theme = useTheme()
     const isMobile: boolean = useMediaQuery(theme.breakpoints.down("md"))
@@ -121,7 +126,7 @@ export default function BucketPointsDisplay() {
 
     const completedCount = bucketPoints?.filter((point) => point.completed).length || 0
 
-    const filteredBucketPoints =
+    let filteredBucketPoints =
         bucketPoints
             ?.filter(
                 (point) =>
@@ -130,6 +135,10 @@ export default function BucketPointsDisplay() {
             )
             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) ||
         []
+
+    if (maskCompleted) {
+        filteredBucketPoints = filteredBucketPoints.filter((point) => !point.completed)
+    }
 
     return (
         <Box
@@ -140,51 +149,124 @@ export default function BucketPointsDisplay() {
             width={isMobile ? "95%" : "60%"}
             height="auto"
         >
-            <Box
-                display="flex"
-                flexDirection={isMobile ? "column" : "row"}
-                justifyContent="space-between"
-                alignItems={isMobile ? "flex-start" : "center"}
-                width="100%"
-                mb={2}
-                gap={isMobile ? 2 : 0}
+            <Paper
+                elevation={0}
+                sx={{
+                    width: "100%",
+                    px: isMobile ? 2 : 3,
+                    py: isMobile ? 2 : 2.5,
+                    mb: 2,
+                    borderRadius: 3,
+                    backdropFilter: "blur(8px)",
+                    background: "rgba(255,255,255,0.45)",
+                    border: "1px solid rgba(255,255,255,0.6)",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.4)",
+                }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: isMobile ? "column" : "row",
-                        alignItems: isMobile ? "flex-start" : "center",
-                        gap: isMobile ? "8px" : "10px",
-                    }}
+                <Stack
+                    direction={isMobile ? "column" : "row"}
+                    alignItems={isMobile ? "stretch" : "center"}
+                    justifyContent="space-between"
+                    spacing={isMobile ? 2 : 3}
+                    flexWrap="wrap"
+                    useFlexGap
                 >
-                    <Typography variant={isMobile ? "h5" : "h4"}>À faire ensemble 🧸</Typography>
-                    <BucketPointsInput />
-                </Box>
+                    <Stack
+                        direction={isMobile ? "column" : "row"}
+                        spacing={1.5}
+                        alignItems={isMobile ? "flex-start" : "center"}
+                        flexShrink={0}
+                    >
+                        <Typography
+                            variant={isMobile ? "h5" : "h4"}
+                            sx={{
+                                lineHeight: 1.1,
+                                letterSpacing: 0.2,
+                                textShadow: "0 1px 0 rgba(255,255,255,0.6)",
+                            }}
+                        >
+                            À faire ensemble 🧸
+                        </Typography>
 
-                <Box
-                    display="flex"
-                    flexDirection={isMobile ? "column" : "row"}
-                    alignItems={isMobile ? "flex-start" : "center"}
-                    gap={isMobile ? 1 : 2}
-                    width={isMobile ? "100%" : "auto"}
-                >
-                    <Typography variant="h6" color="text.secondary">
-                        {completedCount} réalisés
-                    </Typography>
-                    <InputBase
-                        placeholder="Rechercher..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        sx={{
-                            p: 1,
-                            border: "1px solid #ccc",
-                            borderRadius: 2,
-                            backgroundColor: "rgba(255,255,255,0.9)",
-                            width: isMobile ? "100%" : "auto",
-                        }}
-                    />
-                </Box>
-            </Box>
+                        <Box sx={{ mt: isMobile ? 0.5 : 0 }}>
+                            <BucketPointsInput />
+                        </Box>
+                    </Stack>
+
+                    <Stack
+                        direction={isMobile ? "column" : "row"}
+                        spacing={isMobile ? 1.25 : 1.5}
+                        alignItems={isMobile ? "stretch" : "center"}
+                        sx={{ width: isMobile ? "100%" : "auto" }}
+                    >
+                        <Chip
+                            label={`${completedCount} réalisés`}
+                            variant="outlined"
+                            icon={<span style={{ fontSize: 10, marginLeft: 4 }}>✓</span>}
+                            sx={{
+                                height: 36,
+                                borderRadius: 2,
+                                px: 1,
+                                fontWeight: 600,
+                                bgcolor: "rgba(255,255,255,0.6)",
+                                borderColor: "rgba(0,0,0,0.06)",
+                            }}
+                        />
+
+                        <ToggleButtonGroup
+                            value={maskCompleted ? "hide" : "show"}
+                            exclusive
+                            onChange={(_, v) => {
+                                if (v === "hide") setMaskCompleted(true)
+                                if (v === "show") setMaskCompleted(false)
+                            }}
+                            size="small"
+                            sx={{
+                                bgcolor: "rgba(255,255,255,0.6)",
+                                borderRadius: 2,
+                                border: "1px solid rgba(0,0,0,0.06)",
+                                "& .MuiToggleButton-root": {
+                                    px: 1.5,
+                                    py: 0.75,
+                                    textTransform: "none",
+                                    fontWeight: 600,
+                                    "&.Mui-selected": {
+                                        bgcolor: "primary.main",
+                                        color: "primary.contrastText",
+                                        "&:hover": { bgcolor: "primary.main" },
+                                    },
+                                },
+                            }}
+                        >
+                            <ToggleButton value="show">Tout</ToggleButton>
+                            <ToggleButton value="hide">Actifs</ToggleButton>
+                        </ToggleButtonGroup>
+
+                        <TextField
+                            placeholder="Rechercher…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            size="small"
+                            fullWidth={isMobile}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchRounded />
+                                    </InputAdornment>
+                                ),
+                            }}
+                            sx={{
+                                minWidth: isMobile ? "100%" : 260,
+                                "& .MuiOutlinedInput-root": {
+                                    height: 36,
+                                    borderRadius: 2,
+                                    bgcolor: "rgba(255,255,255,0.9)",
+                                },
+                            }}
+                        />
+                    </Stack>
+                </Stack>
+            </Paper>
 
             <List
                 sx={{
