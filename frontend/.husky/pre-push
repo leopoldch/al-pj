@@ -1,0 +1,2 @@
+echo "Running frontend tests..."
+npm test || exit 1

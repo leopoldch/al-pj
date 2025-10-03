@@ -1,0 +1,5 @@
+echo "Running lint..."
+npm run lint || exit 1
+
+echo "Formatting code..."
+npm run format
