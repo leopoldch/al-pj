@@ -14,27 +14,17 @@ class BucketPointView(APIView):
         return Response(data)
 
     def post(self, request):
-        try:
-            data = BucketPointService.create(
-                data=request.data, 
-                context={"request": request}
-            )
-            return Response(data, status=status.HTTP_201_CREATED)
-        except ValidationError as e:
-            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        data = BucketPointService.create(
+            data=request.data, 
+            context={"request": request}
+        )
+        return Response(data, status=status.HTTP_201_CREATED)
+
 
     def put(self, request, pk):
-        try:
-            data = BucketPointService.update(pk=pk, data=request.data)
-            return Response(data, status=status.HTTP_200_OK)
-        except ValidationError as e:
-            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
-        except NotFound as e:
-            return Response({"detail": str(e.detail)}, status=status.HTTP_404_NOT_FOUND)
+        data = BucketPointService.update(pk=pk, data=request.data)
+        return Response(data, status=status.HTTP_200_OK)
 
     def delete(self, _, pk):
-        try:
-            BucketPointService.delete(pk=pk)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except NotFound as e:
-            return Response({"detail": str(e.detail)}, status=status.HTTP_404_NOT_FOUND)
+        BucketPointService.delete(pk=pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)

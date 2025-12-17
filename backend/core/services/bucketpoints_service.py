@@ -22,12 +22,11 @@ class BucketPointService:
         
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
-
+        
         bucket = serializer.save()
         payload = BucketPointSerializer(bucket).data
 
         cls._broadcast_change(WebSocketMessageType.BUCKETPOINT_CREATED, {"data": payload})
-        
         return payload
 
     @classmethod

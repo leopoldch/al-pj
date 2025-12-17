@@ -1,6 +1,7 @@
+from core.exceptions.exceptions import CloudUploadError
 from core.interface.photo_saver_repository import PhotoSaverRepository
 import boto3
-from botocore.exceptions import NoCredentialsError
+from botocore.exceptions import NoCredentialsError, ClientError, BotoCoreError
 import os
 import mimetypes
 from uuid import uuid4
@@ -38,20 +39,20 @@ class AwsPhotoSaver(PhotoSaverRepository):
         return f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}";
 
     def _upload_to_s3(self, file, file_key):
-        s3 = self._get_s3_client()
-        try:
-            s3.upload_fileobj(
-                file,
-                AWS_BUCKET_NAME,
-                file_key,
-                ExtraArgs={
-                    "ContentType": self._get_content_type(file.name),
-                    "ContentDisposition": "inline",
-                },
-            )
-        except NoCredentialsError:
-            print("Credentials invalides.")
-            return ""
+            s3 = self._get_s3_client()
+            try:
+                s3.upload_fileobj(
+                    file,
+                    AWS_BUCKET_NAME,
+                    file_key,
+                    ExtraArgs={
+                        "ContentType": self._get_content_type(file.name),
+                        "ContentDisposition": "inline",
+                    },
+                )
+            except (NoCredentialsError, ClientError, BotoCoreError) as e:
+                print(f"Erreur Upload S3: {e}") 
+                raise CloudUploadError("Échec de l'upload vers S3")
 
     def _delete_from_s3(self, file_key):
         s3 = self._get_s3_client()
@@ -59,8 +60,9 @@ class AwsPhotoSaver(PhotoSaverRepository):
             s3.delete_object(Bucket=AWS_BUCKET_NAME, Key=file_key)
             return True
         except Exception as e:
-            print(f"Échec de la suppression du fichier : {e}")
-            return False
+            print(f"Erreur Upload S3: {e}") 
+            raise CloudUploadError("Échec de la suppression depuis S3")
+
 
 
     def save_within_folder(self, file, folder_album_id)-> str:

@@ -11,7 +11,6 @@ from core.services import MessageService
 
 load_dotenv(find_dotenv())
 
-
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
 
 class MessageView(APIView):
@@ -23,19 +22,14 @@ class MessageView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        try:
-            message_data = MessageService.create_message(
-                sender=request.user, 
-                data=request.data,
-                request_context={"request": request}
-            )
-            return Response(message_data, status=status.HTTP_201_CREATED)
-        
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        message_data = MessageService.create_message(
+            sender=request.user, 
+            data=request.data,
+            request_context={"request": request}
+        )
+        return Response(message_data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, pk):
-        if MessageService.delete(pk, request.user):
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        MessageService.delete(pk, request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
