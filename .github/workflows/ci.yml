@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-execute_backend_tests:
+  execute_backend_tests:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,7 +20,7 @@ execute_backend_tests:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: '3.12'
           cache: 'poetry'
 
       - name: Install Poetry
@@ -40,7 +40,7 @@ execute_backend_tests:
           DEBUG: "False"
         run: poetry run python manage.py test
 
-build_and_lint:
+  build_and_lint:
     runs-on: ubuntu-latest
 
     steps:
