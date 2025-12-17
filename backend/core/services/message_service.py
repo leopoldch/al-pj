@@ -5,14 +5,16 @@ from core.websocket.messages import WebSocketMessageType
 from core.utils import send_formatted_mail
 from channels.layers import get_channel_layer
 from ..models import Message
+from rest_framework.exceptions import NotFound,ValidationError
 
 class MessageService:
 
     @classmethod
     def create_message(cls, sender: User, data: dict, request_context=None) -> dict:
         serializer = MessageSerializer(data=data, context=request_context)
-        serializer.is_valid(raise_exception=True) 
-        _ = serializer.save(user=sender)
+        if not serializer.is_valid():
+            raise ValidationError(serializer.errors)
+        serializer.save(user=sender)
         
         payload = serializer.data
 

@@ -12,25 +12,14 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        if not request.user or not request.user.is_authenticated:
-            return Response(
-                {"detail": "Authentication required."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
     
 class PresenceIndicatorView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        if not request.user or not request.user.is_authenticated:
-            return Response(
-                {"detail": "Authentication required."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-        
+    def get(self, request):        
         data = UserService.getPresenceData(request.user.id)
-        return Response(data, 201)
+        return Response(data, status=status.HTTP_200_OK)
 
         
