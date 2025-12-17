@@ -7,8 +7,11 @@ on:
       - main
 
 jobs:
-  execute_backend_tests:
+execute_backend_tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
 
     steps:
       - name: Checkout repository
@@ -17,7 +20,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.14'
           cache: 'poetry'
 
       - name: Install Poetry
@@ -27,9 +30,14 @@ jobs:
         run: poetry install --no-interaction --no-ansi
 
       - name: Check missing migrations
+        env: 
+          SECRET_KEY: "dummy-secret-key-for-tests"
         run: poetry run python manage.py makemigrations --check --dry-run
 
       - name: Run backend tests
+        env:
+          SECRET_KEY: "dummy-secret-key-for-tests"
+          DEBUG: "False"
         run: poetry run python manage.py test
 
   build_and_lint:
