@@ -18,7 +18,7 @@ export const useWebSocketContext = optionalWebSocketContext.useOptionalContext
 const WebSocketProvider = ({ children }: WithChildren) => {
     const webSocketClientRef = useRef<WebSocketClient>(new WebSocketClient())
     const { token: accessToken } = useAuth()
-    const currentUrl = window.location.href
+    const currentUrl = window.location.origin
 
     const wsUrl =
         process.env.NODE_ENV === "development" ? process.env.REACT_APP_WS_URL : `${currentUrl}/ws/`
