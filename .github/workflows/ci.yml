@@ -17,20 +17,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Poetry
+        run: |
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
+          pipx install poetry
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'poetry'
-
-      - name: Install Poetry
-        run: pip install poetry
+          cache-dependency-path: backend/poetry.lock
 
       - name: Install dependencies
         run: poetry install --no-interaction --no-ansi
 
       - name: Check missing migrations
-        env: 
+        env:
           SECRET_KEY: "dummy-secret-key-for-tests"
         run: poetry run python manage.py makemigrations --check --dry-run
 
