@@ -1,0 +1,16 @@
+from abc import ABC, abstractmethod
+from typing import Any
+
+class PhotoSaverRepository(ABC):
+    
+    @abstractmethod
+    def save_within_folder(self, file: Any, folder_album_id) -> str:
+        pass
+
+    @abstractmethod
+    def save(self, file: Any) -> str:
+        pass
+
+    @abstractmethod
+    def delete(self, file_url: str) -> bool:
+        pass
