@@ -3,7 +3,12 @@ name: Deploy to Production
 on:
   release:
     types: [published]
-
+  workflow_dispatch:
+      inputs:
+        reason:
+          description: 'Reason for manual trigger'
+          required: true
+          default: 'Minor production release'
 jobs:
   deploy:
     runs-on: self-hosted
