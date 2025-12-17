@@ -38,7 +38,7 @@ Technology: **Django**
 
 cd backend
 
-poetry shell
+poetry env activate
 
 poetry install
 
