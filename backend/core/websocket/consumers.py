@@ -1,15 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 
-
-# To mark a message as viewed by the other user :
-# Verify that the user is authenticated
-# Get the id of the message
-# Verify that we are not making a self send message as viewed
-# mark as viewed in db
-# send to all the users through the websocket
-# that the message has been viewed
-# execpt the user who sent the message
 from channels.db import database_sync_to_async
 from rest_framework_simplejwt.tokens import UntypedToken
 from jwt import decode as jwt_decode
@@ -32,7 +23,6 @@ redis_client = Redis.from_url(REDIS_URL)
 # PLEASE NOTE THAT THIS IS A VERY BASIC IMPLEMENTATION
 # WHICH IS MEANT TO BE USED ONLY BY 2 USERS
 # THIS IS NOT MEANT TO BE USED FOR A GROUP CHAT
-
 
 class WebSocketManager(AsyncWebsocketConsumer):
     async def connect(self):
