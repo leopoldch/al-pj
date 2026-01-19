@@ -109,9 +109,7 @@ const PhotoCard = ({ photo, albumId }: PhotoCardProps) => {
                                 position: "absolute",
                                 top: 8,
                                 right: 8,
-                                backgroundColor: confirmDelete
-                                    ? "error.main"
-                                    : "rgba(0,0,0,0.5)",
+                                backgroundColor: confirmDelete ? "error.main" : "rgba(0,0,0,0.5)",
                                 color: "white",
                                 "&:hover": {
                                     backgroundColor: confirmDelete

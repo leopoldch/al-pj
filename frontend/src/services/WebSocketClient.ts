@@ -162,9 +162,7 @@ export class WebSocketClient {
             }
 
             if (!message.type || message.data === undefined) {
-                console.warn(
-                    "WebSocket message is not valid (missing type or data fields)"
-                )
+                console.warn("WebSocket message is not valid (missing type or data fields)")
                 return
             }
 
@@ -207,10 +205,7 @@ export class WebSocketClient {
 
         // Exponential backoff with jitter
         const jitter = Math.random() * 0.3 * this.currentReconnectDelay
-        const delay = Math.min(
-            this.currentReconnectDelay + jitter,
-            MAX_RECONNECT_DELAY
-        )
+        const delay = Math.min(this.currentReconnectDelay + jitter, MAX_RECONNECT_DELAY)
 
         console.debug(
             `Scheduling reconnect attempt ${this.reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS} in ${Math.round(delay)}ms`
