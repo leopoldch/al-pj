@@ -2,11 +2,35 @@ from enum import Enum
 
 
 class WebSocketMessageType(str, Enum):
+    """
+    Enum of all WebSocket message types supported by the application.
+
+    Naming convention: ENTITY_ACTION (e.g., MESSAGE_CREATED, PHOTO_UPLOADED)
+    """
+
+    # Message events
     MESSAGE_CREATED = "MESSAGE_CREATED"
     MESSAGE_DELETED = "MESSAGE_DELETED"
     MESSAGE_VIEWED = "MESSAGE_VIEWED"
+
+    # User presence events
     USER_PRESENCE_CONNECTED = "USER_PRESENCE_CONNECTED"
     USER_PRESENCE_DISCONNECTED = "USER_PRESENCE_DISCONNECTED"
+
+    # BucketPoint (bucketlist) events
     BUCKETPOINT_CREATED = "BUCKETPOINT_CREATED"
     BUCKETPOINT_DELETED = "BUCKETPOINT_DELETED"
     BUCKETPOINT_UPDATED = "BUCKETPOINT_UPDATED"
+
+    # Photo events
+    PHOTO_UPLOADED = "PHOTO_UPLOADED"
+    PHOTO_DELETED = "PHOTO_DELETED"
+    PHOTO_UPDATED = "PHOTO_UPDATED"
+
+    # Album events
+    ALBUM_CREATED = "ALBUM_CREATED"
+    ALBUM_DELETED = "ALBUM_DELETED"
+    ALBUM_UPDATED = "ALBUM_UPDATED"
+
+    # System events
+    SYSTEM_NOTIFICATION = "SYSTEM_NOTIFICATION"

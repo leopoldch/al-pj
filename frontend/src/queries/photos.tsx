@@ -47,3 +47,43 @@ export const useAddPhotoMutation = (): UseMutationResult<Photo, unknown, AddPhot
         },
     })
 }
+
+interface DeletePhotoInput {
+    albumId: string
+    photoId: number
+}
+
+export const useDeletePhotoMutation = (): UseMutationResult<void, unknown, DeletePhotoInput> => {
+    const { axiosInstance } = useAuth()
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async ({ albumId, photoId }: DeletePhotoInput) => {
+            await axiosInstance.delete(`/photos/${albumId}/${photoId}/`)
+        },
+        onSuccess: (_data, { albumId }) => {
+            queryClient.invalidateQueries({ queryKey: ["photos", albumId] })
+        },
+    })
+}
+
+interface UpdatePhotoInput {
+    albumId: string
+    photoId: number
+    data: Partial<Pick<Photo, "caption" | "location">>
+}
+
+export const useUpdatePhotoMutation = (): UseMutationResult<Photo, unknown, UpdatePhotoInput> => {
+    const { axiosInstance } = useAuth()
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async ({ albumId, photoId, data }: UpdatePhotoInput) => {
+            const response = await axiosInstance.patch(`/photos/${albumId}/${photoId}/`, data)
+            return response.data.photo
+        },
+        onSuccess: (_data, { albumId }) => {
+            queryClient.invalidateQueries({ queryKey: ["photos", albumId] })
+        },
+    })
+}
