@@ -39,6 +39,7 @@ jobs:
           docker system prune -f || true
 
       - run: |
+          RELEASE_TAG=${{ github.ref_name }} \
           DEBUG=${DEBUG} \
           SECRET_KEY=${SECRET_KEY} \
           ALLOWED_HOSTS=${ALLOWED_HOSTS} \

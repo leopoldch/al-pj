@@ -3,6 +3,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
+ARG REACT_APP_RELEASE_TAG
+ENV REACT_APP_RELEASE_TAG=$REACT_APP_RELEASE_TAG
 RUN npm run build
 
 FROM node:20-slim

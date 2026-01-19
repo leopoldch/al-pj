@@ -40,6 +40,17 @@ function Footer() {
             <Typography variant="body1" color={mainFontColor}>
                 © 2025 <span onDoubleClick={handleDoubleClick}>Aurianne Schwartz</span> &{" "}
                 <span>Léopold Chappuis</span>
+                {process.env.REACT_APP_RELEASE_TAG && (
+                    <span
+                        style={{
+                            fontSize: "0.8rem",
+                            marginLeft: "10px",
+                            opacity: 0.7,
+                        }}
+                    >
+                        ({process.env.REACT_APP_RELEASE_TAG})
+                    </span>
+                )}
             </Typography>
         </Box>
     )
