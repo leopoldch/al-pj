@@ -5,6 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
+
 def send_email(
     subject: str,
     html_body: str,

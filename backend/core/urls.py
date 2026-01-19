@@ -1,16 +1,22 @@
 from django.urls import path
 from .views import (
     MessageView,
+    PaginatedMessageView,
     ProfileView,
     BucketPointView,
     PresenceIndicatorView,
     AlbumView,
     PhotoView,
-    PhotoDetailView
+    PhotoDetailView,
 )
 
 urlpatterns = [
     path("messages/", MessageView.as_view(), name="user_messages"),
+    path(
+        "messages/paginated/",
+        PaginatedMessageView.as_view(),
+        name="user_messages_paginated",
+    ),
     path("messages/<int:pk>/", MessageView.as_view(), name="user_messages"),
     path("profile/", ProfileView.as_view(), name="user_profile"),
     path("bucketpoints/", BucketPointView.as_view(), name="bucket_points"),
@@ -19,5 +25,9 @@ urlpatterns = [
     path("albums/", AlbumView.as_view(), name="albums"),
     path("albums/<int:album_id>/", AlbumView.as_view(), name="album_edition"),
     path("photos/<int:album_id>/", PhotoView.as_view(), name="photo_view"),
-    path("photos/<int:album_id>/<int:photo_id>/", PhotoDetailView.as_view(), name="photo_detail"),
+    path(
+        "photos/<int:album_id>/<int:photo_id>/",
+        PhotoDetailView.as_view(),
+        name="photo_detail",
+    ),
 ]

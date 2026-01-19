@@ -18,8 +18,12 @@ class TestSendWsMessageToUser:
         mock_async_send = MagicMock()
         mock_channel_layer.group_send = mock_async_send
 
-        with patch("core.websocket.utils.get_channel_layer", return_value=mock_channel_layer):
-            with patch("core.websocket.utils.async_to_sync", return_value=mock_async_send):
+        with patch(
+            "core.websocket.utils.get_channel_layer", return_value=mock_channel_layer
+        ):
+            with patch(
+                "core.websocket.utils.async_to_sync", return_value=mock_async_send
+            ):
                 user_id = 42
                 event_type = WebSocketMessageType.BUCKETPOINT_CREATED
                 data = {"id": 1, "title": "Test"}
@@ -35,8 +39,12 @@ class TestSendWsMessageToUser:
         mock_channel_layer = MagicMock()
         mock_async_send = MagicMock()
 
-        with patch("core.websocket.utils.get_channel_layer", return_value=mock_channel_layer):
-            with patch("core.websocket.utils.async_to_sync", return_value=mock_async_send):
+        with patch(
+            "core.websocket.utils.get_channel_layer", return_value=mock_channel_layer
+        ):
+            with patch(
+                "core.websocket.utils.async_to_sync", return_value=mock_async_send
+            ):
                 user_id = 1
                 event_type = WebSocketMessageType.PHOTO_UPLOADED
                 data = {"photo_id": 123}
@@ -56,8 +64,12 @@ class TestSendWsMessageToUser:
         mock_channel_layer = MagicMock()
         mock_async_send = MagicMock()
 
-        with patch("core.websocket.utils.get_channel_layer", return_value=mock_channel_layer):
-            with patch("core.websocket.utils.async_to_sync", return_value=mock_async_send):
+        with patch(
+            "core.websocket.utils.get_channel_layer", return_value=mock_channel_layer
+        ):
+            with patch(
+                "core.websocket.utils.async_to_sync", return_value=mock_async_send
+            ):
                 send_ws_message_to_user(1, WebSocketMessageType.MESSAGE_CREATED, {})
 
                 call_args = mock_async_send.call_args
@@ -69,8 +81,12 @@ class TestSendWsMessageToUser:
         mock_channel_layer = MagicMock()
         mock_async_send = MagicMock()
 
-        with patch("core.websocket.utils.get_channel_layer", return_value=mock_channel_layer):
-            with patch("core.websocket.utils.async_to_sync", return_value=mock_async_send):
+        with patch(
+            "core.websocket.utils.get_channel_layer", return_value=mock_channel_layer
+        ):
+            with patch(
+                "core.websocket.utils.async_to_sync", return_value=mock_async_send
+            ):
                 send_ws_message_to_user(1, "CUSTOM_EVENT", {"key": "value"})
 
                 call_args = mock_async_send.call_args
@@ -92,8 +108,12 @@ class TestBroadcastWsMessage:
         mock_channel_layer = MagicMock()
         mock_async_send = MagicMock()
 
-        with patch("core.websocket.utils.get_channel_layer", return_value=mock_channel_layer):
-            with patch("core.websocket.utils.async_to_sync", return_value=mock_async_send):
+        with patch(
+            "core.websocket.utils.get_channel_layer", return_value=mock_channel_layer
+        ):
+            with patch(
+                "core.websocket.utils.async_to_sync", return_value=mock_async_send
+            ):
                 user_ids = [1, 2, 3]
                 event_type = WebSocketMessageType.BUCKETPOINT_DELETED
                 data = {"id": 99}
@@ -107,8 +127,12 @@ class TestBroadcastWsMessage:
         mock_channel_layer = MagicMock()
         mock_async_send = MagicMock()
 
-        with patch("core.websocket.utils.get_channel_layer", return_value=mock_channel_layer):
-            with patch("core.websocket.utils.async_to_sync", return_value=mock_async_send):
+        with patch(
+            "core.websocket.utils.get_channel_layer", return_value=mock_channel_layer
+        ):
+            with patch(
+                "core.websocket.utils.async_to_sync", return_value=mock_async_send
+            ):
                 user_ids = [10, 20]
                 event_type = WebSocketMessageType.PHOTO_DELETED
                 data = {"id": 1}
@@ -125,8 +149,12 @@ class TestBroadcastWsMessage:
         mock_channel_layer = MagicMock()
         mock_async_send = MagicMock()
 
-        with patch("core.websocket.utils.get_channel_layer", return_value=mock_channel_layer):
-            with patch("core.websocket.utils.async_to_sync", return_value=mock_async_send):
+        with patch(
+            "core.websocket.utils.get_channel_layer", return_value=mock_channel_layer
+        ):
+            with patch(
+                "core.websocket.utils.async_to_sync", return_value=mock_async_send
+            ):
                 broadcast_ws_message([], WebSocketMessageType.MESSAGE_CREATED, {})
 
                 mock_async_send.assert_not_called()
@@ -136,12 +164,18 @@ class TestBroadcastWsMessage:
         mock_channel_layer = MagicMock()
         mock_async_send = MagicMock()
 
-        with patch("core.websocket.utils.get_channel_layer", return_value=mock_channel_layer):
-            with patch("core.websocket.utils.async_to_sync", return_value=mock_async_send):
+        with patch(
+            "core.websocket.utils.get_channel_layer", return_value=mock_channel_layer
+        ):
+            with patch(
+                "core.websocket.utils.async_to_sync", return_value=mock_async_send
+            ):
                 user_ids = [1, 2]
                 data = {"key": "shared_value"}
 
-                broadcast_ws_message(user_ids, WebSocketMessageType.SYSTEM_NOTIFICATION, data)
+                broadcast_ws_message(
+                    user_ids, WebSocketMessageType.SYSTEM_NOTIFICATION, data
+                )
 
                 calls = mock_async_send.call_args_list
                 payloads = [c[0][1]["payload"]["data"] for c in calls]

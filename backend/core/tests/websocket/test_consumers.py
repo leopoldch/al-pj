@@ -2,7 +2,13 @@ from django.test import TestCase, SimpleTestCase
 import json
 from unittest.mock import patch, MagicMock, AsyncMock
 from asgiref.sync import async_to_sync
-from core.websocket.consumers import WebSocketManager, HEARTBEAT_INTERVAL, HEARTBEAT_TIMEOUT, MAX_MESSAGE_SIZE
+from core.websocket.consumers import (
+    WebSocketManager,
+    HEARTBEAT_INTERVAL,
+    HEARTBEAT_TIMEOUT,
+    MAX_MESSAGE_SIZE,
+)
+
 
 class TestWebSocketManagerAuthentication(TestCase):
     """Tests for WebSocket authentication."""
@@ -67,8 +73,7 @@ class TestWebSocketManagerPresence(SimpleTestCase):
         mock_redis.expire = AsyncMock(return_value=True)
 
         with patch(
-            "core.websocket.consumers.get_async_redis_client",
-            return_value=mock_redis
+            "core.websocket.consumers.get_async_redis_client", return_value=mock_redis
         ):
             consumer = WebSocketManager()
             async_to_sync(consumer.mark_user_online)(42)
@@ -82,8 +87,7 @@ class TestWebSocketManagerPresence(SimpleTestCase):
         mock_redis.srem = AsyncMock(return_value=1)
 
         with patch(
-            "core.websocket.consumers.get_async_redis_client",
-            return_value=mock_redis
+            "core.websocket.consumers.get_async_redis_client", return_value=mock_redis
         ):
             consumer = WebSocketManager()
             async_to_sync(consumer.mark_user_offline)(42)
@@ -96,8 +100,7 @@ class TestWebSocketManagerPresence(SimpleTestCase):
         mock_redis.sadd = AsyncMock(side_effect=Exception("Redis connection failed"))
 
         with patch(
-            "core.websocket.consumers.get_async_redis_client",
-            return_value=mock_redis
+            "core.websocket.consumers.get_async_redis_client", return_value=mock_redis
         ):
             consumer = WebSocketManager()
             # Should not raise exception
@@ -129,7 +132,7 @@ class TestWebSocketManagerBroadcast(SimpleTestCase):
         mock_user.id = 1
         mock_user.username = "test"
         mock_user.get_full_name.return_value = "Test User"
-        
+
         consumer = WebSocketManager()
         consumer.channel_layer = AsyncMock()
         consumer.channel_layer.group_send = AsyncMock()
@@ -147,7 +150,7 @@ class TestWebSocketManagerBroadcast(SimpleTestCase):
         """Test broadcasting user disconnected presence."""
         mock_user = MagicMock()
         mock_user.id = 1
-        
+
         consumer = WebSocketManager()
         consumer.channel_layer = AsyncMock()
         consumer.channel_layer.group_send = AsyncMock()
@@ -166,10 +169,7 @@ class TestWebSocketManagerBroadcast(SimpleTestCase):
 
         event = {
             "type": "send.message",
-            "payload": {
-                "type": "TEST_EVENT",
-                "data": {"key": "value"}
-            }
+            "payload": {"type": "TEST_EVENT", "data": {"key": "value"}},
         }
 
         async_to_sync(consumer.send_message)(event)
@@ -183,7 +183,7 @@ class TestWebSocketManagerBroadcast(SimpleTestCase):
     def test_broadcast_presence_handles_error(self):
         """Test that broadcast errors are handled gracefully."""
         mock_user = MagicMock()
-        
+
         consumer = WebSocketManager()
         consumer.channel_layer = AsyncMock()
         consumer.channel_layer.group_send = AsyncMock(

@@ -9,7 +9,12 @@ TEST_USER_ID = 1
 TEST_BUCKETPOINT_ID = 10
 TEST_BUCKETPOINT_TITLE = "Saut en parachute"
 TEST_BUCKETPOINT_DATA = {"title": TEST_BUCKETPOINT_TITLE, "completed": False}
-TEST_RETURNED_DATA = {"id": TEST_BUCKETPOINT_ID, "title": TEST_BUCKETPOINT_TITLE, "completed": False}
+TEST_RETURNED_DATA = {
+    "id": TEST_BUCKETPOINT_ID,
+    "title": TEST_BUCKETPOINT_TITLE,
+    "completed": False,
+}
+
 
 class TestBucketPointView(unittest.TestCase):
 
@@ -20,7 +25,9 @@ class TestBucketPointView(unittest.TestCase):
         self.mock_user.id = TEST_USER_ID
 
     @patch("core.views.bucketpoints.BucketPointService")
-    def test_givenAuthenticatedUser_whenGet_thenShouldCallServiceGetAll(self, mock_service):
+    def test_givenAuthenticatedUser_whenGet_thenShouldCallServiceGetAll(
+        self, mock_service
+    ):
         request = self.factory.get("/bucketpoints/")
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
@@ -43,7 +50,9 @@ class TestBucketPointView(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @patch("core.views.bucketpoints.BucketPointService")
-    def test_givenServiceReturnsData_whenGet_thenShouldReturnCorrectData(self, mock_service):
+    def test_givenServiceReturnsData_whenGet_thenShouldReturnCorrectData(
+        self, mock_service
+    ):
         request = self.factory.get("/bucketpoints/")
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
@@ -64,7 +73,9 @@ class TestBucketPointView(unittest.TestCase):
 
         self.view.post(request)
 
-        mock_service.create.assert_called_once_with(data=TEST_BUCKETPOINT_DATA, context={"request": request})
+        mock_service.create.assert_called_once_with(
+            data=TEST_BUCKETPOINT_DATA, context={"request": request}
+        )
 
     @patch("core.views.bucketpoints.BucketPointService")
     def test_givenValidData_whenPost_thenShouldReturn201(self, mock_service):
@@ -93,7 +104,9 @@ class TestBucketPointView(unittest.TestCase):
         self.assertEqual(response.data, TEST_RETURNED_DATA)
 
     @patch("core.views.bucketpoints.BucketPointService")
-    def test_givenServiceRaisesValidationError_whenPost_thenShouldRaiseValidationError(self, mock_service):
+    def test_givenServiceRaisesValidationError_whenPost_thenShouldRaiseValidationError(
+        self, mock_service
+    ):
         request = self.factory.post("/bucketpoints/", TEST_BUCKETPOINT_DATA)
         request.data = TEST_BUCKETPOINT_DATA
         force_authenticate(request, user=self.mock_user)
@@ -105,8 +118,12 @@ class TestBucketPointView(unittest.TestCase):
             self.view.post(request)
 
     @patch("core.views.bucketpoints.BucketPointService")
-    def test_givenValidDataAndId_whenPut_thenShouldCallServiceUpdate(self, mock_service):
-        request = self.factory.put(f"/bucketpoints/{TEST_BUCKETPOINT_ID}/", TEST_BUCKETPOINT_DATA)
+    def test_givenValidDataAndId_whenPut_thenShouldCallServiceUpdate(
+        self, mock_service
+    ):
+        request = self.factory.put(
+            f"/bucketpoints/{TEST_BUCKETPOINT_ID}/", TEST_BUCKETPOINT_DATA
+        )
         request.data = TEST_BUCKETPOINT_DATA
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
@@ -115,11 +132,15 @@ class TestBucketPointView(unittest.TestCase):
 
         self.view.put(request, pk=TEST_BUCKETPOINT_ID)
 
-        mock_service.update.assert_called_once_with(pk=TEST_BUCKETPOINT_ID, data=TEST_BUCKETPOINT_DATA)
+        mock_service.update.assert_called_once_with(
+            pk=TEST_BUCKETPOINT_ID, data=TEST_BUCKETPOINT_DATA
+        )
 
     @patch("core.views.bucketpoints.BucketPointService")
     def test_givenValidDataAndId_whenPut_thenShouldReturn200(self, mock_service):
-        request = self.factory.put(f"/bucketpoints/{TEST_BUCKETPOINT_ID}/", TEST_BUCKETPOINT_DATA)
+        request = self.factory.put(
+            f"/bucketpoints/{TEST_BUCKETPOINT_ID}/", TEST_BUCKETPOINT_DATA
+        )
         request.data = TEST_BUCKETPOINT_DATA
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
@@ -132,8 +153,12 @@ class TestBucketPointView(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @patch("core.views.bucketpoints.BucketPointService")
-    def test_givenValidDataAndId_whenPut_thenShouldReturnUpdatedData(self, mock_service):
-        request = self.factory.put(f"/bucketpoints/{TEST_BUCKETPOINT_ID}/", TEST_BUCKETPOINT_DATA)
+    def test_givenValidDataAndId_whenPut_thenShouldReturnUpdatedData(
+        self, mock_service
+    ):
+        request = self.factory.put(
+            f"/bucketpoints/{TEST_BUCKETPOINT_ID}/", TEST_BUCKETPOINT_DATA
+        )
         request.data = TEST_BUCKETPOINT_DATA
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
@@ -146,8 +171,12 @@ class TestBucketPointView(unittest.TestCase):
         self.assertEqual(response.data, TEST_RETURNED_DATA)
 
     @patch("core.views.bucketpoints.BucketPointService")
-    def test_givenServiceRaisesNotFound_whenPut_thenShouldRaiseNotFound(self, mock_service):
-        request = self.factory.put(f"/bucketpoints/{TEST_BUCKETPOINT_ID}/", TEST_BUCKETPOINT_DATA)
+    def test_givenServiceRaisesNotFound_whenPut_thenShouldRaiseNotFound(
+        self, mock_service
+    ):
+        request = self.factory.put(
+            f"/bucketpoints/{TEST_BUCKETPOINT_ID}/", TEST_BUCKETPOINT_DATA
+        )
         request.data = TEST_BUCKETPOINT_DATA
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
@@ -181,6 +210,7 @@ class TestBucketPointView(unittest.TestCase):
         response = self.view.delete(request, pk=TEST_BUCKETPOINT_ID)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
 
 if __name__ == "__main__":
     unittest.main()

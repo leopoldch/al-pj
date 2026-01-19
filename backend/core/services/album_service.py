@@ -1,16 +1,17 @@
 from ..models import Album
 from ..serializers import AlbumSerializer
 from core.dependencies import photo_repository
-from rest_framework.exceptions import NotFound,ValidationError
+from rest_framework.exceptions import NotFound, ValidationError
 from django.shortcuts import get_object_or_404
 
+
 class AlbumService:
-    
+
     @staticmethod
     def getAll():
         albums = Album.objects.all()
         return albums
-    
+
     @staticmethod
     def createAlbum(raw_data, file):
         data = raw_data.copy()
@@ -19,10 +20,10 @@ class AlbumService:
             data["cover_image"] = link
 
         serializer = AlbumSerializer(data=data)
-        
+
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
-        
+
         serializer.save()
         return serializer.data
 
@@ -37,14 +38,14 @@ class AlbumService:
     @classmethod
     def modifyAlbum(cls, id, raw_data, file):
         data = raw_data.copy()
-        album = get_object_or_404(Album, pk=id)        
+        album = get_object_or_404(Album, pk=id)
 
         if not "image" in file or not file["image"]:
             raise NotFound("Image not found.")
 
         data = cls._replace_cover_image(data, album, file)
         serializer = AlbumSerializer(album, data=data, partial=True)
-        
+
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
 

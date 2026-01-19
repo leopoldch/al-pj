@@ -36,15 +36,13 @@ class TestPhotoServiceGetPhotosByAlbumId(unittest.TestCase):
     def test_get_photos_by_album_id_filters_by_album_id(
         self, mock_photo_model, mock_serializer_class
     ):
-        
+
         mock_queryset = MagicMock()
         mock_photo_model.objects.filter.return_value = mock_queryset
         mock_serializer_class.return_value.data = self.serialized_photos
 
-        
         PhotoService.get_photos_by_album_id(TEST_ALBUM_ID)
 
-        
         mock_photo_model.objects.filter.assert_called_once_with(album_id=TEST_ALBUM_ID)
 
     @patch("core.services.photo_service.PhotoSerializer")
@@ -52,15 +50,13 @@ class TestPhotoServiceGetPhotosByAlbumId(unittest.TestCase):
     def test_get_photos_by_album_id_returns_serialized_photos(
         self, mock_photo_model, mock_serializer_class
     ):
-        
+
         mock_queryset = MagicMock()
         mock_photo_model.objects.filter.return_value = mock_queryset
         mock_serializer_class.return_value.data = self.serialized_photos
 
-        
         result = PhotoService.get_photos_by_album_id(TEST_ALBUM_ID)
 
-        
         self.assertEqual(result, self.serialized_photos)
 
     @patch("core.services.photo_service.PhotoSerializer")
@@ -68,15 +64,13 @@ class TestPhotoServiceGetPhotosByAlbumId(unittest.TestCase):
     def test_get_photos_by_album_id_uses_many_serializer(
         self, mock_photo_model, mock_serializer_class
     ):
-        
+
         mock_queryset = MagicMock()
         mock_photo_model.objects.filter.return_value = mock_queryset
         mock_serializer_class.return_value.data = self.serialized_photos
 
-        
         PhotoService.get_photos_by_album_id(TEST_ALBUM_ID)
 
-        
         mock_serializer_class.assert_called_once_with(mock_queryset, many=True)
 
     @patch("core.services.photo_service.PhotoSerializer")
@@ -84,15 +78,13 @@ class TestPhotoServiceGetPhotosByAlbumId(unittest.TestCase):
     def test_get_photos_by_album_id_when_empty_returns_empty_list(
         self, mock_photo_model, mock_serializer_class
     ):
-        
+
         mock_queryset = MagicMock()
         mock_photo_model.objects.filter.return_value = mock_queryset
         mock_serializer_class.return_value.data = []
 
-        
         result = PhotoService.get_photos_by_album_id(TEST_ALBUM_ID)
 
-        
         self.assertEqual(result, [])
 
 
@@ -128,7 +120,12 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_uploads_image_to_album_folder(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
+        self,
+        mock_photo_repo,
+        mock_album_model,
+        mock_serializer_class,
+        mock_user,
+        mock_ws_send,
     ):
 
         mock_album_model.objects.get.return_value = self.mock_album
@@ -139,9 +136,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
         mock_serializer_class.return_value = mock_serializer
         mock_user.objects.all.return_value.values_list.return_value = [1]
 
-
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
-
 
         mock_photo_repo.save_within_folder.assert_called_once_with(
             self.mock_file, folder_album_id=TEST_ALBUM_ID
@@ -153,7 +148,12 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_fetches_album_by_id(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
+        self,
+        mock_photo_repo,
+        mock_album_model,
+        mock_serializer_class,
+        mock_user,
+        mock_ws_send,
     ):
 
         mock_album_model.objects.get.return_value = self.mock_album
@@ -164,9 +164,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
         mock_serializer_class.return_value = mock_serializer
         mock_user.objects.all.return_value.values_list.return_value = [1]
 
-
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
-
 
         mock_album_model.objects.get.assert_called_once_with(pk=TEST_ALBUM_ID)
 
@@ -176,7 +174,12 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_returns_serialized_photo(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
+        self,
+        mock_photo_repo,
+        mock_album_model,
+        mock_serializer_class,
+        mock_user,
+        mock_ws_send,
     ):
 
         mock_album_model.objects.get.return_value = self.mock_album
@@ -187,9 +190,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
         mock_serializer_class.return_value = mock_serializer
         mock_user.objects.all.return_value.values_list.return_value = [1]
 
-
         result = PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
-
 
         self.assertEqual(result, self.serialized_photo)
 
@@ -199,7 +200,12 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_passes_album_context_to_serializer(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
+        self,
+        mock_photo_repo,
+        mock_album_model,
+        mock_serializer_class,
+        mock_user,
+        mock_ws_send,
     ):
 
         mock_album_model.objects.get.return_value = self.mock_album
@@ -210,9 +216,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
         mock_serializer_class.return_value = mock_serializer
         mock_user.objects.all.return_value.values_list.return_value = [1]
 
-
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
-
 
         # First call is for validation (with context), second is for serialization
         first_call_args = mock_serializer_class.call_args_list[0]
@@ -226,7 +230,12 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_saves_with_album_reference(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
+        self,
+        mock_photo_repo,
+        mock_album_model,
+        mock_serializer_class,
+        mock_user,
+        mock_ws_send,
     ):
 
         mock_album_model.objects.get.return_value = self.mock_album
@@ -237,9 +246,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
         mock_serializer_class.return_value = mock_serializer
         mock_user.objects.all.return_value.values_list.return_value = [1]
 
-
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
-
 
         mock_serializer.save.assert_called_once_with(album=self.mock_album)
 
@@ -249,7 +256,12 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_without_image_does_not_upload(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
+        self,
+        mock_photo_repo,
+        mock_album_model,
+        mock_serializer_class,
+        mock_user,
+        mock_ws_send,
     ):
 
         mock_request = MagicMock()
@@ -265,9 +277,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
         mock_serializer_class.return_value = mock_serializer
         mock_user.objects.all.return_value.values_list.return_value = [1]
 
-
         PhotoService.save_photo(TEST_ALBUM_ID, mock_request)
-
 
         mock_photo_repo.save_within_folder.assert_not_called()
 
@@ -277,7 +287,12 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_sets_image_url_from_upload(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
+        self,
+        mock_photo_repo,
+        mock_album_model,
+        mock_serializer_class,
+        mock_user,
+        mock_ws_send,
     ):
 
         mock_album_model.objects.get.return_value = self.mock_album
@@ -288,9 +303,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
         mock_serializer_class.return_value = mock_serializer
         mock_user.objects.all.return_value.values_list.return_value = [1]
 
-
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
-
 
         # First call is for validation (with data)
         first_call_args = mock_serializer_class.call_args_list[0]
@@ -303,7 +316,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
     def test_save_photo_with_invalid_data_raises_exception(
         self, mock_photo_repo, mock_album_model, mock_serializer_class
     ):
-        
+
         mock_album_model.objects.get.return_value = self.mock_album
         mock_photo_repo.save_within_folder.return_value = TEST_PHOTO_URL
         mock_serializer = MagicMock()
@@ -314,9 +327,7 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
             PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
 
     @patch("core.services.photo_service.Album")
-    def test_save_photo_with_nonexistent_album_raises_exception(
-        self, mock_album_model
-    ):
+    def test_save_photo_with_nonexistent_album_raises_exception(self, mock_album_model):
         mock_album_model.DoesNotExist = Exception
         mock_album_model.objects.get.side_effect = mock_album_model.DoesNotExist
 

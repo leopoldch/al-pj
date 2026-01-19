@@ -5,7 +5,6 @@ from rest_framework.exceptions import ValidationError, NotFound
 from core.services.bucketpoints_service import BucketPointService
 from core.websocket.messages import WebSocketMessageType
 
-
 TEST_USER_ID = 1
 TEST_OTHER_USER_ID = 2
 TEST_BUCKETPOINT_ID = 1
@@ -318,19 +317,17 @@ class TestBucketPointServiceBroadcastChange(unittest.TestCase):
     @patch("core.services.bucketpoints_service.send_ws_message_to_user")
     @patch("core.services.bucketpoints_service.User")
     def test_broadcast_change_sends_to_all_users(self, mock_user_model, mock_send_ws):
-        
+
         mock_user_model.objects.all.return_value.values_list.return_value = [
             TEST_USER_ID,
             TEST_OTHER_USER_ID,
         ]
         message_data = {"data": {"id": 1}}
 
-        
         BucketPointService._broadcast_change(
             WebSocketMessageType.BUCKETPOINT_CREATED, message_data
         )
 
-        
         self.assertEqual(mock_send_ws.call_count, 2)
 
     @patch("core.services.bucketpoints_service.send_ws_message_to_user")
@@ -338,16 +335,14 @@ class TestBucketPointServiceBroadcastChange(unittest.TestCase):
     def test_broadcast_change_when_no_users_does_not_send(
         self, mock_user_model, mock_send_ws
     ):
-        
+
         mock_user_model.objects.all.return_value.values_list.return_value = []
         message_data = {"data": {"id": 1}}
 
-        
         BucketPointService._broadcast_change(
             WebSocketMessageType.BUCKETPOINT_CREATED, message_data
         )
 
-        
         mock_send_ws.assert_not_called()
 
 

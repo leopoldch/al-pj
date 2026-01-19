@@ -10,6 +10,7 @@ TEST_USERNAME = "JeanDupont"
 TEST_EMAIL = "jean@example.com"
 TEST_VALID_DATA = {"message": TEST_CONTENT}
 
+
 class TestMessageSerializer(unittest.TestCase):
 
     def setUp(self):
@@ -18,7 +19,7 @@ class TestMessageSerializer(unittest.TestCase):
         self.mock_user.username = TEST_USERNAME
         self.mock_user.email = TEST_EMAIL
         self.mock_user.get_full_name = TEST_USERNAME
-        
+
         self.mock_request.user = self.mock_user
         self.context = {"request": self.mock_request}
         self.serializer = MessageSerializer(context=self.context)
@@ -30,7 +31,7 @@ class TestMessageSerializer(unittest.TestCase):
         mock_message.user = self.mock_user
         mock_message.created_at = "2023-01-01"
         mock_message.status = False
-        
+
         serializer = MessageSerializer(instance=mock_message)
         data = serializer.data
 
@@ -39,10 +40,12 @@ class TestMessageSerializer(unittest.TestCase):
         self.assertEqual(data["name"], TEST_USERNAME)
 
     @patch("rest_framework.serializers.ModelSerializer.create")
-    def test_givenAuthenticatedUser_whenCreate_thenShouldAddUserToValidatedData(self, mock_super_create):
+    def test_givenAuthenticatedUser_whenCreate_thenShouldAddUserToValidatedData(
+        self, mock_super_create
+    ):
         self.mock_user.is_authenticated = True
         validated_data = TEST_VALID_DATA.copy()
-        
+
         self.serializer.create(validated_data)
 
         expected_data = TEST_VALID_DATA.copy()
@@ -50,22 +53,27 @@ class TestMessageSerializer(unittest.TestCase):
         mock_super_create.assert_called_once_with(expected_data)
 
     @patch("rest_framework.serializers.ModelSerializer.create")
-    def test_givenUnauthenticatedUser_whenCreate_thenShouldNotAddUserToValidatedData(self, mock_super_create):
+    def test_givenUnauthenticatedUser_whenCreate_thenShouldNotAddUserToValidatedData(
+        self, mock_super_create
+    ):
         self.mock_user.is_authenticated = False
         validated_data = TEST_VALID_DATA.copy()
-        
+
         self.serializer.create(validated_data)
 
         mock_super_create.assert_called_once_with(TEST_VALID_DATA)
 
     @patch("rest_framework.serializers.ModelSerializer.create")
-    def test_givenNoRequestInContext_whenCreate_thenShouldNotAddUserToValidatedData(self, mock_super_create):
+    def test_givenNoRequestInContext_whenCreate_thenShouldNotAddUserToValidatedData(
+        self, mock_super_create
+    ):
         serializer_no_context = MessageSerializer(context={})
         validated_data = TEST_VALID_DATA.copy()
-        
+
         serializer_no_context.create(validated_data)
 
         mock_super_create.assert_called_once_with(TEST_VALID_DATA)
+
 
 if __name__ == "__main__":
     unittest.main()

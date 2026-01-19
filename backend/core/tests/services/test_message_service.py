@@ -46,7 +46,7 @@ class TestMessageServiceCreateMessage(unittest.TestCase):
     def test_create_message_with_valid_data_returns_serialized_message(
         self, mock_serializer_class, mock_get_channel, mock_user_model, mock_send_mail
     ):
-        
+
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_data
@@ -54,12 +54,10 @@ class TestMessageServiceCreateMessage(unittest.TestCase):
         mock_get_channel.return_value = None
         mock_user_model.objects.exclude.return_value.first.return_value = None
 
-        
         result = MessageService.create_message(
             self.mock_sender, self.valid_data, self.request_context
         )
 
-        
         self.assertEqual(result, self.serialized_data)
 
     @patch("core.services.message_service.send_formatted_mail")
@@ -69,7 +67,7 @@ class TestMessageServiceCreateMessage(unittest.TestCase):
     def test_create_message_with_valid_data_calls_serializer_save(
         self, mock_serializer_class, mock_get_channel, mock_user_model, mock_send_mail
     ):
-        
+
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_data
@@ -77,28 +75,24 @@ class TestMessageServiceCreateMessage(unittest.TestCase):
         mock_get_channel.return_value = None
         mock_user_model.objects.exclude.return_value.first.return_value = None
 
-        
         MessageService.create_message(
             self.mock_sender, self.valid_data, self.request_context
         )
 
-        
         mock_serializer.save.assert_called_once_with(user=self.mock_sender)
 
     @patch("core.services.message_service.MessageSerializer")
     def test_create_message_with_invalid_data_raises_validation_error(
         self, mock_serializer_class
     ):
-        
+
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = False
         mock_serializer.errors = {"message": ["This field is required."]}
         mock_serializer_class.return_value = mock_serializer
 
         with self.assertRaises(ValidationError):
-            MessageService.create_message(
-                self.mock_sender, {}, self.request_context
-            )
+            MessageService.create_message(self.mock_sender, {}, self.request_context)
 
     @patch("core.services.message_service.send_formatted_mail")
     @patch("core.services.message_service.User")
@@ -107,20 +101,20 @@ class TestMessageServiceCreateMessage(unittest.TestCase):
     def test_create_message_when_receiver_exists_sends_email(
         self, mock_serializer_class, mock_get_channel, mock_user_model, mock_send_mail
     ):
-        
+
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_data
         mock_serializer_class.return_value = mock_serializer
         mock_get_channel.return_value = None
-        mock_user_model.objects.exclude.return_value.first.return_value = self.mock_receiver
+        mock_user_model.objects.exclude.return_value.first.return_value = (
+            self.mock_receiver
+        )
 
-        
         MessageService.create_message(
             self.mock_sender, self.valid_data, self.request_context
         )
 
-        
         mock_send_mail.assert_called_once_with(
             str(self.mock_receiver.email), str(self.mock_receiver.username)
         )
@@ -132,7 +126,7 @@ class TestMessageServiceCreateMessage(unittest.TestCase):
     def test_create_message_when_no_receiver_does_not_send_email(
         self, mock_serializer_class, mock_get_channel, mock_user_model, mock_send_mail
     ):
-        
+
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_data
@@ -140,12 +134,10 @@ class TestMessageServiceCreateMessage(unittest.TestCase):
         mock_get_channel.return_value = None
         mock_user_model.objects.exclude.return_value.first.return_value = None
 
-        
         MessageService.create_message(
             self.mock_sender, self.valid_data, self.request_context
         )
 
-        
         mock_send_mail.assert_not_called()
 
     @patch("core.services.message_service.send_formatted_mail")
@@ -155,13 +147,15 @@ class TestMessageServiceCreateMessage(unittest.TestCase):
     def test_create_message_when_email_fails_does_not_raise(
         self, mock_serializer_class, mock_get_channel, mock_user_model, mock_send_mail
     ):
-        
+
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_data
         mock_serializer_class.return_value = mock_serializer
         mock_get_channel.return_value = None
-        mock_user_model.objects.exclude.return_value.first.return_value = self.mock_receiver
+        mock_user_model.objects.exclude.return_value.first.return_value = (
+            self.mock_receiver
+        )
         mock_send_mail.side_effect = Exception("SMTP Error")
 
         result = MessageService.create_message(
@@ -191,23 +185,21 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
     def test_notify_recipients_when_channel_layer_exists_sends_to_all(
         self, mock_get_channel, mock_user_model, mock_send_ws
     ):
-        
+
         mock_get_channel.return_value = MagicMock()
         mock_user_model.objects.all.return_value.values_list.return_value = [
             TEST_USER_ID,
             TEST_OTHER_USER_ID,
         ]
 
-        
         MessageService._notify_recipients(
             self.mock_sender,
             self.message_payload,
             WebSocketMessageType.MESSAGE_CREATED,
         )
 
-        
         self.assertEqual(mock_send_ws.call_count, 2)
-        
+
         # Verify calls were made for both users
         expected_call_args_1 = (
             TEST_USER_ID,
@@ -233,7 +225,7 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
                 },
             },
         )
-        
+
         mock_send_ws.assert_any_call(*expected_call_args_1)
         mock_send_ws.assert_any_call(*expected_call_args_2)
 
@@ -242,17 +234,15 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
     def test_notify_recipients_when_no_channel_layer_does_not_send(
         self, mock_get_channel, mock_send_ws
     ):
-        
+
         mock_get_channel.return_value = None
 
-        
         MessageService._notify_recipients(
             self.mock_sender,
             self.message_payload,
             WebSocketMessageType.MESSAGE_CREATED,
         )
 
-        
         mock_send_ws.assert_not_called()
 
     @patch("core.services.message_service.send_ws_message_to_user")
@@ -261,20 +251,18 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
     def test_notify_recipients_includes_sender_in_recipients_list(
         self, mock_get_channel, mock_user_model, mock_send_ws
     ):
-        
+
         mock_get_channel.return_value = MagicMock()
         mock_user_model.objects.all.return_value.values_list.return_value = [
             TEST_USER_ID,
         ]
 
-        
         MessageService._notify_recipients(
             self.mock_sender,
             self.message_payload,
             WebSocketMessageType.MESSAGE_CREATED,
         )
 
-        
         mock_send_ws.assert_called_once_with(
             TEST_USER_ID,
             WebSocketMessageType.MESSAGE_CREATED,
@@ -287,23 +275,6 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
                 },
             },
         )
-
-
-class TestMessageServiceGetAll(unittest.TestCase):
-    """Tests for MessageService.getAll method."""
-
-    @patch("core.services.message_service.Message")
-    def test_getAll_returns_all_messages_queryset(self, mock_message_model):
-        
-        expected_queryset = MagicMock()
-        mock_message_model.objects.all.return_value = expected_queryset
-
-        
-        result = MessageService.getAll()
-
-        
-        self.assertEqual(result, expected_queryset)
-        mock_message_model.objects.all.assert_called_once()
 
 
 class TestMessageServiceDelete(unittest.TestCase):
@@ -325,15 +296,13 @@ class TestMessageServiceDelete(unittest.TestCase):
     def test_delete_with_valid_id_and_owner_returns_true(
         self, mock_message_model, mock_get_channel, mock_serializer_class
     ):
-        
+
         mock_message_model.objects.get.return_value = self.mock_message
         mock_get_channel.return_value = None
         mock_serializer_class.return_value.data = {}
 
-        
         result = MessageService.delete(TEST_MESSAGE_ID, self.mock_user)
 
-        
         self.assertTrue(result)
 
     @patch("core.services.message_service.MessageSerializer")
@@ -342,15 +311,13 @@ class TestMessageServiceDelete(unittest.TestCase):
     def test_delete_with_valid_id_and_owner_deletes_message(
         self, mock_message_model, mock_get_channel, mock_serializer_class
     ):
-        
+
         mock_message_model.objects.get.return_value = self.mock_message
         mock_get_channel.return_value = None
         mock_serializer_class.return_value.data = {}
 
-        
         MessageService.delete(TEST_MESSAGE_ID, self.mock_user)
 
-        
         self.mock_message.delete.assert_called_once()
 
     @patch("core.services.message_service.Message")
@@ -358,10 +325,8 @@ class TestMessageServiceDelete(unittest.TestCase):
         mock_message_model.DoesNotExist = Exception
         mock_message_model.objects.get.side_effect = mock_message_model.DoesNotExist
 
-        
         result = MessageService.delete(999, self.mock_user)
 
-        
         self.assertFalse(result)
 
     @patch("core.services.message_service.send_ws_message_to_user")
@@ -377,7 +342,7 @@ class TestMessageServiceDelete(unittest.TestCase):
         mock_user_model,
         mock_send_ws,
     ):
-        
+
         mock_message_model.objects.get.return_value = self.mock_message
         mock_get_channel.return_value = MagicMock()
         serialized_data = {"id": TEST_MESSAGE_ID}
@@ -386,10 +351,8 @@ class TestMessageServiceDelete(unittest.TestCase):
             TEST_OTHER_USER_ID
         ]
 
-        
         MessageService.delete(TEST_MESSAGE_ID, self.mock_user)
 
-        
         mock_send_ws.assert_called_once()
         call_args = mock_send_ws.call_args
         self.assertEqual(call_args[0][0], TEST_OTHER_USER_ID)

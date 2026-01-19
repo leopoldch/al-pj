@@ -121,12 +121,14 @@ USE_LOCAL_DB = os.getenv("USE_LOCAL_DB", "False") == "True"
 # Cache the database mode detection to avoid repeated checks
 _DB_CHECK_CACHE_FILE = BASE_DIR / ".db_mode_cache"
 
+
 def _test_mysql_connection():
     """Test if MySQL server is reachable."""
     if USE_LOCAL_DB:
         return False
 
     import socket
+
     host = os.getenv("DATABASE_HOST", "localhost")
     port = int(os.getenv("DATABASE_PORT", "3306"))
 
@@ -138,6 +140,7 @@ def _test_mysql_connection():
         return result == 0
     except Exception:
         return False
+
 
 # Determine which database to use
 _mysql_available = _test_mysql_connection()

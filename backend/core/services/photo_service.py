@@ -48,7 +48,7 @@ class PhotoService:
         # Broadcast the upload event
         cls._broadcast_change(
             WebSocketMessageType.PHOTO_UPLOADED,
-            {"data": photo_data, "album_id": album_id}
+            {"data": photo_data, "album_id": album_id},
         )
 
         return photo_data
@@ -68,8 +68,7 @@ class PhotoService:
 
         # Broadcast the deletion event
         cls._broadcast_change(
-            WebSocketMessageType.PHOTO_DELETED,
-            {"id": deleted_id, "album_id": album_id}
+            WebSocketMessageType.PHOTO_DELETED, {"id": deleted_id, "album_id": album_id}
         )
 
     @classmethod
@@ -92,7 +91,7 @@ class PhotoService:
         # Broadcast the update event
         cls._broadcast_change(
             WebSocketMessageType.PHOTO_UPDATED,
-            {"data": photo_data, "album_id": album_id}
+            {"data": photo_data, "album_id": album_id},
         )
 
         return photo_data

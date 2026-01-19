@@ -8,4 +8,5 @@ class BucketPointAdmin(admin.ModelAdmin):
     list_filter = ("completed", "created_at")
     ordering = ("-created_at",)
 
+
 admin.site.register(BucketPoint, BucketPointAdmin)

@@ -27,5 +27,3 @@ class AlbumSerializer(serializers.ModelSerializer):
         if request and not request.user.is_authenticated:
             return None
         return super().create(validated_data)
-
-

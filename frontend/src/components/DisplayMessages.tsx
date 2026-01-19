@@ -1,35 +1,61 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { Box, IconButton, useMediaQuery, useTheme, Typography } from "@mui/material"
 import DeleteIcon from "@mui/icons-material/Delete"
-import { useDeleteMessage, useGetAllMessages } from "../queries/messages"
+import { useDeleteMessage, useGetPaginatedMessages } from "../queries/messages"
 import { useAuth } from "../hooks/useAuth"
 import { useWebSocketContext } from "../contexts/WebSocketProvider"
+import { useQueryClient } from "@tanstack/react-query"
 import { WebSocketMessageType } from "../types/websockets"
 import { MessageCreated, MessageDeleted } from "../types/websocket-interfaces"
-import Imessage from "../types/messages"
+import Imessage, { PaginatedResponse } from "../types/messages"
+import { Virtuoso } from "react-virtuoso"
 
 function DisplayAllMessages() {
-    const { data: msgQuery } = useGetAllMessages()
+    const {
+        data: msgQuery,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useGetPaginatedMessages()
     const deleteMessage = useDeleteMessage()
     const { user } = useAuth()
     const websocket = useWebSocketContext()
-
-    const [messages, setMessages] = useState<Imessage[]>([])
+    const queryClient = useQueryClient()
 
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down("md"))
 
     useEffect(() => {
-        if (msgQuery) setMessages(msgQuery)
-    }, [msgQuery])
-
-    useEffect(() => {
         const handleMessageCreated = (data: MessageCreated) => {
-            setMessages((prev) => [data.message, ...prev])
+            queryClient.setQueryData(
+                ["messages", "paginated"],
+                (oldData: { pages: PaginatedResponse<Imessage>[] } | undefined) => {
+                    if (!oldData) return oldData
+                    const newPages = [...oldData.pages]
+                    newPages[0] = {
+                        ...newPages[0],
+                        results: [data.message, ...newPages[0].results],
+                        count: newPages[0].count + 1,
+                    }
+                    return { ...oldData, pages: newPages }
+                }
+            )
         }
 
         const handleMessageDeleted = (data: MessageDeleted) => {
-            setMessages((prev) => prev.filter((msg) => msg.id !== Number(data.message.id)))
+            queryClient.setQueryData(
+                ["messages", "paginated"],
+                (oldData: { pages: PaginatedResponse<Imessage>[] } | undefined) => {
+                    if (!oldData) return oldData
+                    const newPages = oldData.pages.map((page) => ({
+                        ...page,
+                        results: page.results.filter(
+                            (msg: Imessage) => msg.id !== Number(data.message.id)
+                        ),
+                    }))
+                    return { ...oldData, pages: newPages }
+                }
+            )
         }
 
         websocket.bind(WebSocketMessageType.MessageCreated, handleMessageCreated)
@@ -41,13 +67,10 @@ function DisplayAllMessages() {
             websocket.unbind(WebSocketMessageType.MessageDeleted, handleMessageDeleted)
             websocket.unbind(WebSocketMessageType.MessageViewed, () => {})
         }
-    }, [websocket])
+    }, [websocket, queryClient])
 
-    if (!messages) return <Box>Loading...</Box>
-
-    const sortedMessages = [...messages].sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    )
+    const messages =
+        msgQuery?.pages.flatMap((page: PaginatedResponse<Imessage>) => page.results) || []
 
     return (
         <Box
@@ -55,8 +78,7 @@ function DisplayAllMessages() {
                 width: isMobile ? "95%" : "80%",
                 flexGrow: 1,
                 minHeight: 0,
-                maxHeight: isMobile ? "45vh" : "60vh",
-                overflowY: "auto",
+                height: isMobile ? "45vh" : "60vh",
                 display: "flex",
                 flexDirection: "column",
                 gap: theme.spacing(2),
@@ -64,7 +86,7 @@ function DisplayAllMessages() {
                 mx: "auto",
             }}
         >
-            {sortedMessages.length === 0 ? (
+            {messages.length === 0 ? (
                 <Box
                     sx={{
                         backgroundColor: "rgba(128, 128, 128, 0.1)",
@@ -82,52 +104,63 @@ function DisplayAllMessages() {
                     </Typography>
                 </Box>
             ) : (
-                sortedMessages.map((message) => (
-                    <Box
-                        key={message.id}
-                        sx={{
-                            position: "relative",
-                            p: isMobile ? 1.5 : 2,
-                            backgroundColor: "#f9f9f9",
-                            borderRadius: 2,
-                            boxShadow: theme.shadows[1],
-                            fontSize: isMobile ? "0.85rem" : "0.95rem",
-                            wordBreak: "break-word",
-                        }}
-                    >
-                        {user?.email === message.email && (
-                            <IconButton
-                                onClick={() => deleteMessage.mutate(message.id)}
-                                sx={{
-                                    position: "absolute",
-                                    top: theme.spacing(1),
-                                    right: theme.spacing(1),
-                                    p: isMobile ? 0.5 : 1,
-                                }}
-                            >
-                                <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
-                            </IconButton>
-                        )}
-                        <Typography fontWeight="bold" gutterBottom>
-                            {message.name}
-                        </Typography>
-                        <Typography
+                <Virtuoso
+                    style={{ height: "100%", width: "100%" }}
+                    data={messages}
+                    endReached={() => {
+                        if (hasNextPage && !isFetchingNextPage) {
+                            fetchNextPage()
+                        }
+                    }}
+                    overscan={1000}
+                    itemContent={(index, message) => (
+                        <Box
+                            key={message.id}
                             sx={{
-                                mb: theme.spacing(0.5),
-                                whiteSpace: "pre-wrap",
+                                position: "relative",
+                                p: isMobile ? 1.5 : 2,
+                                backgroundColor: "#f9f9f9",
+                                borderRadius: 2,
+                                boxShadow: theme.shadows[1],
+                                fontSize: isMobile ? "0.85rem" : "0.95rem",
+                                wordBreak: "break-word",
+                                mb: 2,
                             }}
                         >
-                            {message.message}
-                        </Typography>
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            fontSize={isMobile ? "0.7rem" : "0.75rem"}
-                        >
-                            {new Date(message.created_at).toLocaleString()}
-                        </Typography>
-                    </Box>
-                ))
+                            {user?.email === message.email && (
+                                <IconButton
+                                    onClick={() => deleteMessage.mutate(message.id)}
+                                    sx={{
+                                        position: "absolute",
+                                        top: theme.spacing(1),
+                                        right: theme.spacing(1),
+                                        p: isMobile ? 0.5 : 1,
+                                    }}
+                                >
+                                    <DeleteIcon fontSize={isMobile ? "small" : "medium"} />
+                                </IconButton>
+                            )}
+                            <Typography fontWeight="bold" gutterBottom>
+                                {message.name}
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    mb: theme.spacing(0.5),
+                                    whiteSpace: "pre-wrap",
+                                }}
+                            >
+                                {message.message}
+                            </Typography>
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                fontSize={isMobile ? "0.7rem" : "0.75rem"}
+                            >
+                                {new Date(message.created_at).toLocaleString()}
+                            </Typography>
+                        </Box>
+                    )}
+                />
             )}
         </Box>
     )

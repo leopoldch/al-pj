@@ -1,6 +1,7 @@
 from django.db import models
 from .album import Album
 
+
 class Photo(models.Model):
     album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name="photos")
     image_url = models.URLField(max_length=200)

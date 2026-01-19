@@ -67,7 +67,7 @@ class WebSocketManager(AsyncWebsocketConsumer):
             if not user.is_authenticated:
                 logger.warning(
                     "Connection rejected: unauthenticated user",
-                    extra={"client": self.scope.get("client", ["unknown"])[0]}
+                    extra={"client": self.scope.get("client", ["unknown"])[0]},
                 )
                 await self.close(code=4001)
                 return
@@ -92,8 +92,8 @@ class WebSocketManager(AsyncWebsocketConsumer):
                     "user_id": user.id,
                     "username": user.username,
                     "group": self.user_group_name,
-                    "channel": self.channel_name[:20]
-                }
+                    "channel": self.channel_name[:20],
+                },
             )
 
             # Start heartbeat task
@@ -128,8 +128,8 @@ class WebSocketManager(AsyncWebsocketConsumer):
             extra={
                 "user_id": user.id,
                 "username": user.username,
-                "close_code": close_code
-            }
+                "close_code": close_code,
+            },
         )
 
         # Mark user offline
@@ -163,13 +163,19 @@ class WebSocketManager(AsyncWebsocketConsumer):
 
                 try:
                     # Send ping message
-                    await self.send(text_data=json.dumps({
-                        "type": "PING",
-                        "data": {"timestamp": datetime.utcnow().isoformat()}
-                    }))
+                    await self.send(
+                        text_data=json.dumps(
+                            {
+                                "type": "PING",
+                                "data": {"timestamp": datetime.utcnow().isoformat()},
+                            }
+                        )
+                    )
                     logger.debug(
                         "Heartbeat ping sent",
-                        extra={"user_id": getattr(self.scope.get("user"), "id", "unknown")}
+                        extra={
+                            "user_id": getattr(self.scope.get("user"), "id", "unknown")
+                        },
                     )
                 except Exception as e:
                     logger.warning(f"Failed to send heartbeat ping: {e}")
@@ -198,11 +204,7 @@ class WebSocketManager(AsyncWebsocketConsumer):
                 return AnonymousUser()
 
             # Decode and validate JWT
-            decoded_data = jwt_decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=["HS256"]
-            )
+            decoded_data = jwt_decode(token, settings.SECRET_KEY, algorithms=["HS256"])
 
             user_id = decoded_data.get("user_id")
             if not user_id:
@@ -241,13 +243,14 @@ class WebSocketManager(AsyncWebsocketConsumer):
                 extra={
                     "user_id": self.scope["user"].id,
                     "size": len(text_data),
-                    "max_size": MAX_MESSAGE_SIZE
-                }
+                    "max_size": MAX_MESSAGE_SIZE,
+                },
             )
-            await self.send(text_data=json.dumps({
-                "type": "ERROR",
-                "data": {"message": "Message too large"}
-            }))
+            await self.send(
+                text_data=json.dumps(
+                    {"type": "ERROR", "data": {"message": "Message too large"}}
+                )
+            )
             return
 
         try:
@@ -257,30 +260,24 @@ class WebSocketManager(AsyncWebsocketConsumer):
             # Handle PONG response for heartbeat
             if message_type == "PONG":
                 self.last_pong = datetime.utcnow()
-                logger.debug(
-                    "Received PONG",
-                    extra={"user_id": self.scope["user"].id}
-                )
+                logger.debug("Received PONG", extra={"user_id": self.scope["user"].id})
                 return
 
             # Log other messages for debugging
             logger.debug(
                 f"Received message",
-                extra={
-                    "user_id": self.scope["user"].id,
-                    "type": message_type
-                }
+                extra={"user_id": self.scope["user"].id, "type": message_type},
             )
 
         except json.JSONDecodeError:
             logger.warning(
-                "Received invalid JSON",
-                extra={"user_id": self.scope["user"].id}
+                "Received invalid JSON", extra={"user_id": self.scope["user"].id}
             )
-            await self.send(text_data=json.dumps({
-                "type": "ERROR",
-                "data": {"message": "Invalid JSON format"}
-            }))
+            await self.send(
+                text_data=json.dumps(
+                    {"type": "ERROR", "data": {"message": "Invalid JSON format"}}
+                )
+            )
 
     async def send_message(self, event):
         """Handler for channel layer messages - sends to WebSocket client."""
@@ -292,8 +289,8 @@ class WebSocketManager(AsyncWebsocketConsumer):
                 f"Error sending message to client: {e}",
                 extra={
                     "user_id": getattr(self.scope.get("user"), "id", "unknown"),
-                    "event_type": event.get("payload", {}).get("type")
-                }
+                    "event_type": event.get("payload", {}).get("type"),
+                },
             )
 
     async def broadcast_presence(self, user: User, connected: bool):

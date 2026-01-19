@@ -182,6 +182,7 @@ def bucketpoint_data():
         "completed": False,
     }
 
+
 @pytest.fixture
 def mock_channel_layer():
     """Create a mock channel layer for WebSocket tests."""
@@ -197,12 +198,15 @@ def patch_channel_layer(mock_channel_layer):
     with patch("channels.layers.get_channel_layer", return_value=mock_channel_layer):
         yield mock_channel_layer
 
+
 @pytest.fixture
 def mock_photo_repository():
     """Create a mock photo repository for S3 operations."""
     repo = MagicMock()
     repo.save.return_value = "https://bucket.s3.amazonaws.com/test_image.jpg"
-    repo.save_within_folder.return_value = "https://bucket.s3.amazonaws.com/1/test_image.jpg"
+    repo.save_within_folder.return_value = (
+        "https://bucket.s3.amazonaws.com/1/test_image.jpg"
+    )
     repo.delete.return_value = True
     return repo
 
@@ -211,8 +215,12 @@ def mock_photo_repository():
 def patch_photo_repository(mock_photo_repository):
     """Patch photo_repository with mock."""
     with patch("core.dependencies.photo_repository", mock_photo_repository):
-        with patch("core.services.album_service.photo_repository", mock_photo_repository):
-            with patch("core.services.photo_service.photo_repository", mock_photo_repository):
+        with patch(
+            "core.services.album_service.photo_repository", mock_photo_repository
+        ):
+            with patch(
+                "core.services.photo_service.photo_repository", mock_photo_repository
+            ):
                 yield mock_photo_repository
 
 
@@ -231,7 +239,9 @@ def patch_send_email():
     """Patch email sending functions."""
     with patch("core.utils.send_email") as mock_send:
         with patch("core.utils.send_formatted_mail") as mock_formatted:
-            with patch("core.services.message_service.send_formatted_mail") as mock_service_mail:
+            with patch(
+                "core.services.message_service.send_formatted_mail"
+            ) as mock_service_mail:
                 yield {
                     "send_email": mock_send,
                     "send_formatted_mail": mock_formatted,

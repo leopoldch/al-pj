@@ -14,12 +14,11 @@ class ProfileView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
-    
+
+
 class PresenceIndicatorView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):        
+    def get(self, request):
         data = UserService.getPresenceData(request.user.id)
         return Response(data, status=status.HTTP_200_OK)
-
-        

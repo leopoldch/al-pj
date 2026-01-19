@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.exceptions import ValidationError, NotFound
 
-from core.services import BucketPointService 
+from core.services import BucketPointService
+
 
 class BucketPointView(APIView):
     permission_classes = [IsAuthenticated]
@@ -15,11 +16,9 @@ class BucketPointView(APIView):
 
     def post(self, request):
         data = BucketPointService.create(
-            data=request.data, 
-            context={"request": request}
+            data=request.data, context={"request": request}
         )
         return Response(data, status=status.HTTP_201_CREATED)
-
 
     def put(self, request, pk):
         data = BucketPointService.update(pk=pk, data=request.data)

@@ -5,7 +5,8 @@ from core.websocket.messages import WebSocketMessageType
 from core.utils import send_formatted_mail
 from channels.layers import get_channel_layer
 from ..models import Message
-from rest_framework.exceptions import NotFound,ValidationError
+from rest_framework.exceptions import NotFound, ValidationError
+
 
 class MessageService:
 
@@ -15,7 +16,7 @@ class MessageService:
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
         serializer.save(user=sender)
-        
+
         payload = serializer.data
 
         cls._notify_recipients(sender, payload, WebSocketMessageType.MESSAGE_CREATED)
@@ -34,10 +35,9 @@ class MessageService:
         if channel_layer is None:
             return
         recipients = User.objects.all().values_list("id", flat=True)
-        
+
         for uid in recipients:
 
-                
             send_ws_message_to_user(
                 uid,
                 webSocketMessageType,
@@ -53,8 +53,8 @@ class MessageService:
 
     @staticmethod
     def getAll():
-        return Message.objects.all()
-    
+        return Message.objects.all().order_by("-created_at")
+
     @classmethod
     def delete(cls, pk, user):
         try:

@@ -1,5 +1,11 @@
-import { useMutation, UseMutationResult, useQuery, UseQueryResult } from "@tanstack/react-query"
-import Imessage from "../types/messages"
+import {
+    useMutation,
+    UseMutationResult,
+    useQuery,
+    UseQueryResult,
+    useInfiniteQuery,
+} from "@tanstack/react-query"
+import Imessage, { PaginatedResponse } from "../types/messages"
 import { useAuth } from "../hooks/useAuth"
 
 const MESSAGE_QUERY_KEY = ["messages"]
@@ -39,4 +45,32 @@ const useDeleteMessage = (): UseMutationResult<void, unknown, number> => {
     })
 }
 
-export { useGetAllMessages, usePostMessage, useDeleteMessage }
+const useGetPaginatedMessages = () => {
+    const { axiosInstance } = useAuth()
+
+    return useInfiniteQuery({
+        initialPageParam: 1,
+        queryKey: ["messages", "paginated"],
+        queryFn: async ({ pageParam = 1 }) => {
+            const response = await axiosInstance.get<PaginatedResponse<Imessage>>(
+                `/messages/paginated/?page=${pageParam}`
+            )
+            return response.data
+        },
+        getNextPageParam: (lastPage) => {
+            if (lastPage.next) {
+                try {
+                    const url = new URL(lastPage.next, window.location.origin)
+                    const page = url.searchParams.get("page")
+                    return page ? Number(page) : undefined
+                } catch (e) {
+                    console.error("Error parsing next page URL:", e)
+                    return undefined
+                }
+            }
+            return undefined
+        },
+    })
+}
+
+export { useGetAllMessages, usePostMessage, useDeleteMessage, useGetPaginatedMessages }

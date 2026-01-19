@@ -1,4 +1,4 @@
-name: CI - Backend tests + Frontend build/lint
+name: CI
 
 on:
   push:
@@ -49,6 +49,7 @@ jobs:
           name: coverage-report
           path: backend/coverage.xml
           retention-days: 7
+
 
   build_and_lint:
     runs-on: ubuntu-latest

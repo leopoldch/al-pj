@@ -2,6 +2,7 @@ from rest_framework import serializers
 from ..models.photo import Photo
 from .album import AlbumSerializer
 
+
 class PhotoSerializer(serializers.ModelSerializer):
     album = AlbumSerializer(read_only=True)
 

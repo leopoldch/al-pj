@@ -16,6 +16,7 @@ AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+
 class AwsPhotoSaver(PhotoSaverRepository):
 
     def _generate_unique_name(self, file_name: str):
@@ -36,23 +37,23 @@ class AwsPhotoSaver(PhotoSaverRepository):
         return content_type
 
     def _get_s3_resource_url(self, file_key):
-        return f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}";
+        return f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}"
 
     def _upload_to_s3(self, file, file_key):
-            s3 = self._get_s3_client()
-            try:
-                s3.upload_fileobj(
-                    file,
-                    AWS_BUCKET_NAME,
-                    file_key,
-                    ExtraArgs={
-                        "ContentType": self._get_content_type(file.name),
-                        "ContentDisposition": "inline",
-                    },
-                )
-            except (NoCredentialsError, ClientError, BotoCoreError) as e:
-                print(f"Erreur Upload S3: {e}") 
-                raise CloudUploadError("Échec de l'upload vers S3")
+        s3 = self._get_s3_client()
+        try:
+            s3.upload_fileobj(
+                file,
+                AWS_BUCKET_NAME,
+                file_key,
+                ExtraArgs={
+                    "ContentType": self._get_content_type(file.name),
+                    "ContentDisposition": "inline",
+                },
+            )
+        except (NoCredentialsError, ClientError, BotoCoreError) as e:
+            print(f"Erreur Upload S3: {e}")
+            raise CloudUploadError("Échec de l'upload vers S3")
 
     def _delete_from_s3(self, file_key):
         s3 = self._get_s3_client()
@@ -60,12 +61,10 @@ class AwsPhotoSaver(PhotoSaverRepository):
             s3.delete_object(Bucket=AWS_BUCKET_NAME, Key=file_key)
             return True
         except Exception as e:
-            print(f"Erreur Upload S3: {e}") 
+            print(f"Erreur Upload S3: {e}")
             raise CloudUploadError("Échec de la suppression depuis S3")
 
-
-
-    def save_within_folder(self, file, folder_album_id)-> str:
+    def save_within_folder(self, file, folder_album_id) -> str:
         file_name = self._generate_unique_name(file.name)
 
         file_key = f"{folder_album_id}/{file_name}"
@@ -76,7 +75,6 @@ class AwsPhotoSaver(PhotoSaverRepository):
         self._upload_to_s3(file, file_key)
         return self._get_s3_resource_url(file_key)
 
-        
     def save(self, file) -> str:
         file_key = self._generate_unique_name(file.name)
 
@@ -90,10 +88,9 @@ class AwsPhotoSaver(PhotoSaverRepository):
     def delete(self, file_url: str) -> bool:
         if file_url is None or file_url == "":
             return True
-        
+
         print("Deleting file from cloud:", file_url)
 
         file_key = file_url.split("/")[-1]
 
         return self._delete_from_s3(file_key)
-

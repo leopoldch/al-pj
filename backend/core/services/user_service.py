@@ -21,17 +21,18 @@ def get_redis_client():
         _redis_client = redis.Redis.from_url(REDIS_URL)
     return _redis_client
 
+
 class UserService:
-    
+
     @staticmethod
     def getPresenceData(user_id):
         channel_layer = get_channel_layer()
 
         if channel_layer is None:
             raise Exception("WebSocket channel layer not available.")
-        
+
         other_user = User.objects.exclude(id=user_id).first()
-        
+
         if not other_user:
             raise NotFound("No other user found.")
 

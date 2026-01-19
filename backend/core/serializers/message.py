@@ -2,6 +2,7 @@ from rest_framework import serializers
 from ..models.message import Message
 from .user import UserSerializer
 
+
 class MessageSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     email = serializers.EmailField(source="user.email", read_only=True)

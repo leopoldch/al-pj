@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+
 class PhotoSaverRepository(ABC):
-    
+
     @abstractmethod
     def save_within_folder(self, file: Any, folder_album_id) -> str:
         pass

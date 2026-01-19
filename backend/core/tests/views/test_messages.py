@@ -9,7 +9,12 @@ TEST_USER_ID = 1
 TEST_MESSAGE_ID = 55
 TEST_MESSAGE_CONTENT = "Hello world"
 TEST_MESSAGE_DATA = {"content": TEST_MESSAGE_CONTENT}
-TEST_RETURNED_MESSAGE = {"id": TEST_MESSAGE_ID, "content": TEST_MESSAGE_CONTENT, "user_id": TEST_USER_ID}
+TEST_RETURNED_MESSAGE = {
+    "id": TEST_MESSAGE_ID,
+    "content": TEST_MESSAGE_CONTENT,
+    "user_id": TEST_USER_ID,
+}
+
 
 class TestMessageView(unittest.TestCase):
 
@@ -20,8 +25,12 @@ class TestMessageView(unittest.TestCase):
         self.mock_user.id = TEST_USER_ID
 
     @patch("core.views.messages.MessageService")
-    @patch("core.views.messages.MessageSerializer") # On mock aussi le serializer car getAll renvoie des objets bruts
-    def test_givenAuthenticatedUser_whenGet_thenShouldCallServiceGetAll(self, mock_serializer, mock_service):
+    @patch(
+        "core.views.messages.MessageSerializer"
+    )  # On mock aussi le serializer car getAll renvoie des objets bruts
+    def test_givenAuthenticatedUser_whenGet_thenShouldCallServiceGetAll(
+        self, mock_serializer, mock_service
+    ):
         request = self.factory.get("/messages/")
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
@@ -33,36 +42,42 @@ class TestMessageView(unittest.TestCase):
 
     @patch("core.views.messages.MessageService")
     @patch("core.views.messages.MessageSerializer")
-    def test_givenServiceReturnsData_whenGet_thenShouldReturn200(self, mock_serializer, mock_service):
+    def test_givenServiceReturnsData_whenGet_thenShouldReturn200(
+        self, mock_serializer, mock_service
+    ):
         request = self.factory.get("/messages/")
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
         self.view.format_kwarg = None
-        
+
         mock_service.getAll.return_value = []
-        
+
         response = self.view.get(request)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @patch("core.views.messages.MessageService")
     @patch("core.views.messages.MessageSerializer")
-    def test_givenServiceReturnsData_whenGet_thenShouldReturnCorrectData(self, mock_serializer, mock_service):
+    def test_givenServiceReturnsData_whenGet_thenShouldReturnCorrectData(
+        self, mock_serializer, mock_service
+    ):
         request = self.factory.get("/messages/")
         force_authenticate(request, user=self.mock_user)
         self.view.request = request
         self.view.format_kwarg = None
-        
+
         mock_serializer_instance = MagicMock()
         mock_serializer_instance.data = [TEST_RETURNED_MESSAGE]
         mock_serializer.return_value = mock_serializer_instance
-        
+
         response = self.view.get(request)
 
         self.assertEqual(response.data, [TEST_RETURNED_MESSAGE])
 
     @patch("core.views.messages.MessageService")
-    def test_givenValidData_whenPost_thenShouldCallServiceCreateMessage(self, mock_service):
+    def test_givenValidData_whenPost_thenShouldCallServiceCreateMessage(
+        self, mock_service
+    ):
         request = self.factory.post("/messages/", TEST_MESSAGE_DATA)
         request.data = TEST_MESSAGE_DATA
         request.user = self.mock_user
@@ -73,9 +88,9 @@ class TestMessageView(unittest.TestCase):
         self.view.post(request)
 
         mock_service.create_message.assert_called_once_with(
-            sender=self.mock_user, 
+            sender=self.mock_user,
             data=TEST_MESSAGE_DATA,
-            request_context={"request": request}
+            request_context={"request": request},
         )
 
     @patch("core.views.messages.MessageService")
@@ -106,7 +121,6 @@ class TestMessageView(unittest.TestCase):
 
         self.assertEqual(response.data, TEST_RETURNED_MESSAGE)
 
-
     @patch("core.views.messages.MessageService")
     def test_givenValidId_whenDelete_thenShouldCallServiceDelete(self, mock_service):
         request = self.factory.delete(f"/messages/{TEST_MESSAGE_ID}/")
@@ -132,6 +146,7 @@ class TestMessageView(unittest.TestCase):
         response = self.view.delete(request, pk=TEST_MESSAGE_ID)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
 
 if __name__ == "__main__":
     unittest.main()

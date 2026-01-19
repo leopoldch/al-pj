@@ -17,10 +17,7 @@ class PhotoView(APIView):
 
     def post(self, request, album_id):
         photo_data = PhotoService.save_photo(album_id, request)
-        return Response(
-            {"photo": photo_data},
-            status=status.HTTP_201_CREATED
-        )
+        return Response({"photo": photo_data}, status=status.HTTP_201_CREATED)
 
 
 class PhotoDetailView(APIView):
@@ -32,11 +29,6 @@ class PhotoDetailView(APIView):
 
     def patch(self, request, album_id, photo_id):
         photo_data = PhotoService.update_photo(
-            photo_id=photo_id,
-            album_id=album_id,
-            data=request.data
+            photo_id=photo_id, album_id=album_id, data=request.data
         )
-        return Response(
-            {"photo": photo_data},
-            status=status.HTTP_200_OK
-        )
+        return Response({"photo": photo_data}, status=status.HTTP_200_OK)

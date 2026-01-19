@@ -7,6 +7,7 @@ from ..serializers import (
     AlbumSerializer,
 )
 
+
 class AlbumView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -20,7 +21,9 @@ class AlbumView(APIView):
         return Response(serialized_data, status=status.HTTP_201_CREATED)
 
     def put(self, request, album_id):
-        serialized_data = AlbumService.modifyAlbum(album_id, request.data, request.FILES)
+        serialized_data = AlbumService.modifyAlbum(
+            album_id, request.data, request.FILES
+        )
         return Response(serialized_data)
 
     def delete(self, request):
