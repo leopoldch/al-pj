@@ -1,15 +1,10 @@
-"""
-Tests for WebSocket consumer.
-"""
-
-import pytest
+from django.test import TestCase, SimpleTestCase
 import json
 from unittest.mock import patch, MagicMock, AsyncMock
 from asgiref.sync import async_to_sync
 from core.websocket.consumers import WebSocketManager, HEARTBEAT_INTERVAL, HEARTBEAT_TIMEOUT, MAX_MESSAGE_SIZE
 
-
-class TestWebSocketManagerAuthentication:
+class TestWebSocketManagerAuthentication(TestCase):
     """Tests for WebSocket authentication."""
 
     def test_get_user_returns_anonymous_when_no_token(self):
@@ -48,7 +43,7 @@ class TestWebSocketManagerAuthentication:
         assert isinstance(result, AnonymousUser)
 
 
-class TestWebSocketManagerMessageHandling:
+class TestWebSocketManagerMessageHandling(SimpleTestCase):
     """Tests for WebSocket message handling."""
 
     def test_receive_rejects_oversized_messages(self):
@@ -62,7 +57,7 @@ class TestWebSocketManagerMessageHandling:
         assert MAX_MESSAGE_SIZE == 65536
 
 
-class TestWebSocketManagerPresence:
+class TestWebSocketManagerPresence(SimpleTestCase):
     """Tests for user presence functionality."""
 
     def test_mark_user_online_calls_redis(self):
@@ -109,7 +104,7 @@ class TestWebSocketManagerPresence:
             async_to_sync(consumer.mark_user_online)(42)
 
 
-class TestWebSocketManagerHeartbeat:
+class TestWebSocketManagerHeartbeat(SimpleTestCase):
     """Tests for heartbeat functionality."""
 
     def test_heartbeat_interval_configuration(self):
@@ -125,11 +120,16 @@ class TestWebSocketManagerHeartbeat:
         assert MAX_MESSAGE_SIZE == 65536  # 64KB
 
 
-class TestWebSocketManagerBroadcast:
+class TestWebSocketManagerBroadcast(SimpleTestCase):
     """Tests for broadcast functionality."""
 
-    def test_broadcast_presence_connected(self, mock_user):
+    def test_broadcast_presence_connected(self):
         """Test broadcasting user connected presence."""
+        mock_user = MagicMock()
+        mock_user.id = 1
+        mock_user.username = "test"
+        mock_user.get_full_name.return_value = "Test User"
+        
         consumer = WebSocketManager()
         consumer.channel_layer = AsyncMock()
         consumer.channel_layer.group_send = AsyncMock()
@@ -143,8 +143,11 @@ class TestWebSocketManagerBroadcast:
         assert payload["type"] == "USER_PRESENCE_CONNECTED"
         assert payload["data"]["user_id"] == mock_user.id
 
-    def test_broadcast_presence_disconnected(self, mock_user):
+    def test_broadcast_presence_disconnected(self):
         """Test broadcasting user disconnected presence."""
+        mock_user = MagicMock()
+        mock_user.id = 1
+        
         consumer = WebSocketManager()
         consumer.channel_layer = AsyncMock()
         consumer.channel_layer.group_send = AsyncMock()
@@ -177,8 +180,10 @@ class TestWebSocketManagerBroadcast:
         assert sent_data["type"] == "TEST_EVENT"
         assert sent_data["data"]["key"] == "value"
 
-    def test_broadcast_presence_handles_error(self, mock_user):
+    def test_broadcast_presence_handles_error(self):
         """Test that broadcast errors are handled gracefully."""
+        mock_user = MagicMock()
+        
         consumer = WebSocketManager()
         consumer.channel_layer = AsyncMock()
         consumer.channel_layer.group_send = AsyncMock(

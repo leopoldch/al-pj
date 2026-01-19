@@ -36,8 +36,7 @@ class MessageService:
         recipients = User.objects.all().values_list("id", flat=True)
         
         for uid in recipients:
-            if uid == sender.id:
-                continue
+
                 
             send_ws_message_to_user(
                 uid,

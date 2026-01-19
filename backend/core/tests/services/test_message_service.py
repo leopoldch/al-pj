@@ -188,7 +188,7 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
     @patch("core.services.message_service.send_ws_message_to_user")
     @patch("core.services.message_service.User")
     @patch("core.services.message_service.get_channel_layer")
-    def test_notify_recipients_when_channel_layer_exists_sends_to_all_except_sender(
+    def test_notify_recipients_when_channel_layer_exists_sends_to_all(
         self, mock_get_channel, mock_user_model, mock_send_ws
     ):
         
@@ -206,7 +206,22 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
         )
 
         
-        mock_send_ws.assert_called_once_with(
+        self.assertEqual(mock_send_ws.call_count, 2)
+        
+        # Verify calls were made for both users
+        expected_call_args_1 = (
+            TEST_USER_ID,
+            WebSocketMessageType.MESSAGE_CREATED,
+            {
+                "message": self.message_payload,
+                "sender": {
+                    "id": self.mock_sender.id,
+                    "username": self.mock_sender.username,
+                    "email": self.mock_sender.email,
+                },
+            },
+        )
+        expected_call_args_2 = (
             TEST_OTHER_USER_ID,
             WebSocketMessageType.MESSAGE_CREATED,
             {
@@ -218,6 +233,9 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
                 },
             },
         )
+        
+        mock_send_ws.assert_any_call(*expected_call_args_1)
+        mock_send_ws.assert_any_call(*expected_call_args_2)
 
     @patch("core.services.message_service.send_ws_message_to_user")
     @patch("core.services.message_service.get_channel_layer")
@@ -240,7 +258,7 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
     @patch("core.services.message_service.send_ws_message_to_user")
     @patch("core.services.message_service.User")
     @patch("core.services.message_service.get_channel_layer")
-    def test_notify_recipients_skips_sender_in_recipients_list(
+    def test_notify_recipients_includes_sender_in_recipients_list(
         self, mock_get_channel, mock_user_model, mock_send_ws
     ):
         
@@ -257,7 +275,18 @@ class TestMessageServiceNotifyRecipients(unittest.TestCase):
         )
 
         
-        mock_send_ws.assert_not_called()
+        mock_send_ws.assert_called_once_with(
+            TEST_USER_ID,
+            WebSocketMessageType.MESSAGE_CREATED,
+            {
+                "message": self.message_payload,
+                "sender": {
+                    "id": self.mock_sender.id,
+                    "username": self.mock_sender.username,
+                    "email": self.mock_sender.email,
+                },
+            },
+        )
 
 
 class TestMessageServiceGetAll(unittest.TestCase):
