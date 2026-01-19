@@ -133,7 +133,7 @@ export class WebSocketClient {
             this.scheduleReconnect()
         }
 
-        webSocket.onmessage = <T extends WebSocketMessageType>(event: MessageEvent<string>) => {
+        webSocket.onmessage = (event: MessageEvent<string>) => {
             this.handleMessage(event)
         }
 
