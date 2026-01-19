@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import sys
+import logging
 from dotenv import load_dotenv, find_dotenv
 from datetime import timedelta
 
@@ -110,19 +112,79 @@ TEMPLATES = [
 WSGI_APPLICATION = "backend.wsgi.application"
 ASGI_APPLICATION = "backend.asgi.application"
 
-# Database
+# Database Configuration
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("DATABASE_NAME"),
-        "USER": os.getenv("DATABASE_USERNAME"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
-        "HOST": os.getenv("DATABASE_HOST"),
-        "PORT": os.getenv("DATABASE_PORT"),
+# Check if we should use local SQLite database
+USE_LOCAL_DB = os.getenv("USE_LOCAL_DB", "False") == "True"
+
+# Cache the database mode detection to avoid repeated checks
+_DB_CHECK_CACHE_FILE = BASE_DIR / ".db_mode_cache"
+
+def _test_mysql_connection():
+    """Test if MySQL server is reachable."""
+    if USE_LOCAL_DB:
+        return False
+
+    import socket
+    host = os.getenv("DATABASE_HOST", "localhost")
+    port = int(os.getenv("DATABASE_PORT", "3306"))
+
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)  # 3 second timeout for connection test
+        result = sock.connect_ex((host, port))
+        sock.close()
+        return result == 0
+    except Exception:
+        return False
+
+# Determine which database to use
+_mysql_available = _test_mysql_connection()
+
+# Track if we've already shown the warning (avoid duplicate messages)
+_warning_shown = os.environ.get("_DB_WARNING_SHOWN", "")
+
+if USE_LOCAL_DB or not _mysql_available:
+    if not USE_LOCAL_DB and not _mysql_available and not _warning_shown:
+        os.environ["_DB_WARNING_SHOWN"] = "1"
+        sys.stderr.write(
+            "\n" + "=" * 60 + "\n"
+            "WARNING: Cannot connect to remote MySQL database.\n"
+            f"Host: {os.getenv('DATABASE_HOST')}:{os.getenv('DATABASE_PORT')}\n"
+            "Falling back to local SQLite database.\n"
+            "Set USE_LOCAL_DB=True in .env to suppress this warning.\n"
+            "=" * 60 + "\n\n"
+        )
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+    DATABASE_MODE = "sqlite"
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.getenv("DATABASE_NAME"),
+            "USER": os.getenv("DATABASE_USERNAME"),
+            "PASSWORD": os.getenv("DATABASE_PASSWORD"),
+            "HOST": os.getenv("DATABASE_HOST"),
+            "PORT": os.getenv("DATABASE_PORT", "3306"),
+            "OPTIONS": {
+                "connect_timeout": 30,
+                "read_timeout": 60,
+                "write_timeout": 60,
+                "charset": "utf8mb4",
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+            "CONN_MAX_AGE": 60,  # Keep connections alive for 60 seconds
+            "CONN_HEALTH_CHECKS": True,  # Enable connection health checks
+        }
+    }
+    DATABASE_MODE = "mysql"
 
 
 CHANNEL_LAYERS = {
@@ -182,3 +244,31 @@ STATIC_ROOT = BASE_DIR / "static"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Logging configuration
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django.db.backends": {
+            "level": "WARNING",
+            "handlers": ["console"],
+        },
+        "websocket": {
+            "level": "DEBUG" if DEBUG else "INFO",
+            "handlers": ["console"],
+        },
+    },
+}
