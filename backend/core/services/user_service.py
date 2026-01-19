@@ -9,7 +9,17 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
 REDIS_URL = "redis://" + os.getenv("REDIS_HOST", "localhost")
-r = redis.Redis.from_url(REDIS_URL)
+
+# Lazy Redis connection to avoid connection issues during module import
+_redis_client = None
+
+
+def get_redis_client():
+    """Get Redis client lazily to avoid connection issues during import."""
+    global _redis_client
+    if _redis_client is None:
+        _redis_client = redis.Redis.from_url(REDIS_URL)
+    return _redis_client
 
 class UserService:
     
@@ -26,7 +36,7 @@ class UserService:
             raise NotFound("No other user found.")
 
         try:
-            is_online = r.sismember("online_users", str(other_user.id))
+            is_online = get_redis_client().sismember("online_users", str(other_user.id))
         except RedisError as e:
             print(f"Redis Error: {e}")
             is_online = False

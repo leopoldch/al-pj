@@ -13,7 +13,15 @@ from redis.asyncio import Redis
 load_dotenv(find_dotenv())
 
 REDIS_URL = "redis://" + os.getenv("REDIS_HOST", "localhost")
-redis_client = Redis.from_url(REDIS_URL)
+
+_async_redis_client = None
+
+async def get_async_redis_client():
+    """Get async Redis client lazily to avoid connection issues during import."""
+    global _async_redis_client
+    if _async_redis_client is None:
+        _async_redis_client = Redis.from_url(REDIS_URL)
+    return _async_redis_client
 
 # PLEASE NOTE THAT THIS IS A VERY BASIC IMPLEMENTATION
 # WHICH IS MEANT TO BE USED ONLY BY 2 USERS
@@ -108,12 +116,14 @@ class WebSocketManager(AsyncWebsocketConsumer):
 
     async def mark_user_online(self, user_id: int):
         try:
+            redis_client = await get_async_redis_client()
             await redis_client.sadd("online_users", str(user_id))
         except Exception as e:
             print(f"Redis Error (mark_user_online): {e}")
 
     async def mark_user_offline(self, user_id: int):
         try:
+            redis_client = await get_async_redis_client()
             await redis_client.srem("online_users", str(user_id))
         except Exception as e:
             print(f"Redis Error (mark_user_offline): {e}")
