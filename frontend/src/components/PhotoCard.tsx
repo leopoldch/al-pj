@@ -1,27 +1,52 @@
 import React, { useState } from "react"
-import { Card, CardMedia, Typography, Box, Stack, Modal, Backdrop } from "@mui/material"
+import {
+    Card,
+    CardMedia,
+    Typography,
+    Box,
+    Stack,
+    Modal,
+    Backdrop,
+    IconButton,
+    CircularProgress,
+    Tooltip,
+    Zoom,
+} from "@mui/material"
 import LocationOnIcon from "@mui/icons-material/LocationOn"
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto"
-
-export interface Photo {
-    id: number
-    album: string
-    image_url: string
-    caption: string
-    created_at: string
-    updated_at: string
-    location: string
-}
+import DeleteIcon from "@mui/icons-material/Delete"
+import { Photo } from "../types/photo"
+import { useDeletePhotoMutation } from "../queries/photos"
 
 interface PhotoCardProps {
     photo: Photo
+    albumId: string
 }
 
-const PhotoCard = ({ photo }: PhotoCardProps) => {
+const PhotoCard = ({ photo, albumId }: PhotoCardProps) => {
     const [open, setOpen] = useState(false)
+    const [isHovered, setIsHovered] = useState(false)
+    const [confirmDelete, setConfirmDelete] = useState(false)
+    const deletePhotoMutation = useDeletePhotoMutation()
 
     const handleOpen = () => setOpen(true)
-    const handleClose = () => setOpen(false)
+    const handleClose = () => {
+        setOpen(false)
+        setConfirmDelete(false)
+    }
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (!confirmDelete) {
+            setConfirmDelete(true)
+            // Reset confirmation after 3 seconds
+            setTimeout(() => setConfirmDelete(false), 3000)
+            return
+        }
+        deletePhotoMutation.mutate({ albumId, photoId: photo.id })
+    }
+
+    const isDeleting = deletePhotoMutation.isPending
 
     return (
         <>
@@ -35,15 +60,31 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
                     overflow: "hidden",
                     backgroundColor: "white",
                     cursor: "pointer",
+                    transition: "transform 0.2s, box-shadow 0.2s",
+                    "&:hover": {
+                        transform: "scale(1.02)",
+                        boxShadow: 6,
+                    },
                 }}
                 onClick={handleOpen}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => {
+                    setIsHovered(false)
+                    setConfirmDelete(false)
+                }}
             >
                 {photo.image_url ? (
                     <CardMedia
                         component="img"
                         image={photo.image_url}
                         alt={photo.caption || "Photo"}
-                        sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            opacity: isDeleting ? 0.5 : 1,
+                            transition: "opacity 0.3s",
+                        }}
                     />
                 ) : (
                     <Box
@@ -56,6 +97,46 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
                         }}
                     >
                         <InsertPhotoIcon sx={{ fontSize: 48, color: "#bdbdbd" }} />
+                    </Box>
+                )}
+
+                {/* Delete button - visible on hover */}
+                <Zoom in={isHovered && !isDeleting}>
+                    <Tooltip title={confirmDelete ? "Cliquer pour confirmer" : "Supprimer"}>
+                        <IconButton
+                            onClick={handleDelete}
+                            sx={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                backgroundColor: confirmDelete
+                                    ? "error.main"
+                                    : "rgba(0,0,0,0.5)",
+                                color: "white",
+                                "&:hover": {
+                                    backgroundColor: confirmDelete
+                                        ? "error.dark"
+                                        : "rgba(0,0,0,0.7)",
+                                },
+                            }}
+                            size="small"
+                        >
+                            <DeleteIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                </Zoom>
+
+                {/* Loading indicator when deleting */}
+                {isDeleting && (
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                        }}
+                    >
+                        <CircularProgress size={40} />
                     </Box>
                 )}
 
@@ -158,6 +239,38 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
                             zIndex: 1301,
                         }}
                     >
+                        {/* Delete button in modal */}
+                        <Tooltip title={confirmDelete ? "Cliquer pour confirmer" : "Supprimer"}>
+                            <Box
+                                onClick={handleDelete}
+                                sx={{
+                                    backgroundColor: confirmDelete
+                                        ? "rgba(211,47,47,0.8)"
+                                        : "rgba(0,0,0,0.6)",
+                                    borderRadius: "50%",
+                                    width: 36,
+                                    height: 36,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: isDeleting ? "wait" : "pointer",
+                                    transition: "background-color 0.2s",
+                                    "&:hover": {
+                                        backgroundColor: confirmDelete
+                                            ? "rgba(198,40,40,0.9)"
+                                            : "rgba(0,0,0,0.8)",
+                                    },
+                                }}
+                            >
+                                {isDeleting ? (
+                                    <CircularProgress size={16} sx={{ color: "white" }} />
+                                ) : (
+                                    <DeleteIcon sx={{ color: "white", fontSize: 18 }} />
+                                )}
+                            </Box>
+                        </Tooltip>
+
+                        {/* Download button */}
                         <Box
                             component="a"
                             href={photo.image_url}
@@ -179,6 +292,7 @@ const PhotoCard = ({ photo }: PhotoCardProps) => {
                             </Typography>
                         </Box>
 
+                        {/* Close button */}
                         <Box
                             onClick={handleClose}
                             sx={{

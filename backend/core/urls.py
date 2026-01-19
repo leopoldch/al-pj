@@ -6,6 +6,7 @@ from .views import (
     PresenceIndicatorView,
     AlbumView,
     PhotoView,
+    PhotoDetailView
 )
 
 urlpatterns = [
@@ -18,4 +19,5 @@ urlpatterns = [
     path("albums/", AlbumView.as_view(), name="albums"),
     path("albums/<int:album_id>/", AlbumView.as_view(), name="album_edition"),
     path("photos/<int:album_id>/", PhotoView.as_view(), name="photo_view"),
+    path("photos/<int:album_id>/<int:photo_id>/", PhotoDetailView.as_view(), name="photo_detail"),
 ]

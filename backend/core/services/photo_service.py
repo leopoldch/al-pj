@@ -1,7 +1,13 @@
-from core.models import Album
+from core.models import Album, Photo
 from core.serializers import PhotoSerializer
-from core.models import Photo
 from core.dependencies import photo_repository
+from core.websocket.utils import send_ws_message_to_user
+from core.websocket.messages import WebSocketMessageType
+from django.contrib.auth.models import User
+from rest_framework.exceptions import NotFound, ValidationError
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PhotoService:
@@ -11,12 +17,18 @@ class PhotoService:
         photos = Photo.objects.filter(album_id=album_id)
         photos = PhotoSerializer(photos, many=True).data
         return photos
-    
-    @staticmethod
-    def save_photo(album_id, request):
+
+    @classmethod
+    def save_photo(cls, album_id, request):
+        """Save a photo and broadcast the upload event."""
         data = request.data.copy()
         file = request.FILES
-        album = Album.objects.get(pk=album_id)
+
+        try:
+            album = Album.objects.get(pk=album_id)
+        except Album.DoesNotExist:
+            raise NotFound(f"Album with id {album_id} not found")
+
         if "image" in file and file["image"]:
             link = photo_repository.save_within_folder(
                 file["image"], folder_album_id=album_id
@@ -28,5 +40,67 @@ class PhotoService:
             data=data, context={"request": request, "album": album}
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save(album=album)
-        return serializer.data
+        photo = serializer.save(album=album)
+        photo_data = PhotoSerializer(photo).data
+
+        logger.info(f"Photo uploaded to album {album_id}: {photo.id}")
+
+        # Broadcast the upload event
+        cls._broadcast_change(
+            WebSocketMessageType.PHOTO_UPLOADED,
+            {"data": photo_data, "album_id": album_id}
+        )
+
+        return photo_data
+
+    @classmethod
+    def delete_photo(cls, photo_id: int, album_id: int) -> None:
+        """Delete a photo and broadcast the deletion event."""
+        try:
+            photo = Photo.objects.get(pk=photo_id, album_id=album_id)
+        except Photo.DoesNotExist:
+            raise NotFound(f"Photo with id {photo_id} not found in album {album_id}")
+
+        deleted_id = photo.id
+        photo.delete()
+
+        logger.info(f"Photo deleted from album {album_id}: {deleted_id}")
+
+        # Broadcast the deletion event
+        cls._broadcast_change(
+            WebSocketMessageType.PHOTO_DELETED,
+            {"id": deleted_id, "album_id": album_id}
+        )
+
+    @classmethod
+    def update_photo(cls, photo_id: int, album_id: int, data: dict) -> dict:
+        """Update a photo and broadcast the update event."""
+        try:
+            photo = Photo.objects.get(pk=photo_id, album_id=album_id)
+        except Photo.DoesNotExist:
+            raise NotFound(f"Photo with id {photo_id} not found in album {album_id}")
+
+        serializer = PhotoSerializer(photo, data=data, partial=True)
+        if not serializer.is_valid():
+            raise ValidationError(serializer.errors)
+
+        photo = serializer.save()
+        photo_data = PhotoSerializer(photo).data
+
+        logger.info(f"Photo updated in album {album_id}: {photo.id}")
+
+        # Broadcast the update event
+        cls._broadcast_change(
+            WebSocketMessageType.PHOTO_UPDATED,
+            {"data": photo_data, "album_id": album_id}
+        )
+
+        return photo_data
+
+    @staticmethod
+    def _broadcast_change(message_type: WebSocketMessageType, message_data: dict):
+        """Broadcast a photo change to all authenticated users."""
+        recipients = User.objects.all().values_list("id", flat=True)
+
+        for uid in recipients:
+            send_ws_message_to_user(uid, message_type, message_data)

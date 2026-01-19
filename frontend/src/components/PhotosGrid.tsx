@@ -1,10 +1,10 @@
 import React from "react"
-import { useGetPhotos } from "../queries/photos"
+import { usePhotosWithWebSocket } from "../hooks/usePhotosWithWebSocket"
 import PhotoCard from "./PhotoCard"
-import { Grid, Typography, CircularProgress, Box } from "@mui/material"
+import { Grid, Typography, CircularProgress, Box, Fade } from "@mui/material"
 
 const PhotosGrid = ({ id_album }: { id_album: string }) => {
-    const { data, isLoading, isError } = useGetPhotos(id_album ?? "")
+    const { photos, isLoading, isError } = usePhotosWithWebSocket(id_album ?? "")
 
     if (isLoading) {
         return (
@@ -14,7 +14,7 @@ const PhotosGrid = ({ id_album }: { id_album: string }) => {
         )
     }
 
-    if (isError || !data) {
+    if (isError) {
         return (
             <Typography color="error" align="center">
                 Erreur lors du chargement des photos.
@@ -22,20 +22,27 @@ const PhotosGrid = ({ id_album }: { id_album: string }) => {
         )
     }
 
-    if (data.photos.length === 0) {
+    if (photos.length === 0) {
         return (
             <Typography variant="body1" align="center">
-                Aucun média pour cet album.
+                Aucun media pour cet album.
             </Typography>
         )
     }
 
     return (
         <Grid container spacing={2} justifyContent="center">
-            {data.photos.map((photo) => (
-                <Grid item key={photo.id}>
-                    <PhotoCard photo={photo} />
-                </Grid>
+            {photos.map((photo, index) => (
+                <Fade
+                    key={photo.id}
+                    in={true}
+                    timeout={300 + index * 50}
+                    style={{ transitionDelay: `${index * 30}ms` }}
+                >
+                    <Grid item>
+                        <PhotoCard photo={photo} albumId={id_album} />
+                    </Grid>
+                </Fade>
             ))}
         </Grid>
     )

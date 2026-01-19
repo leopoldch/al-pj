@@ -122,118 +122,136 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
             "location": TEST_PHOTO_LOCATION,
         }
 
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
     @patch("core.services.photo_service.PhotoSerializer")
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_uploads_image_to_album_folder(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class
+        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
     ):
-        
+
         mock_album_model.objects.get.return_value = self.mock_album
         mock_photo_repo.save_within_folder.return_value = TEST_PHOTO_URL
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_photo
         mock_serializer_class.return_value = mock_serializer
+        mock_user.objects.all.return_value.values_list.return_value = [1]
 
-        
+
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
 
-        
+
         mock_photo_repo.save_within_folder.assert_called_once_with(
             self.mock_file, folder_album_id=TEST_ALBUM_ID
         )
 
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
     @patch("core.services.photo_service.PhotoSerializer")
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_fetches_album_by_id(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class
+        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
     ):
-        
+
         mock_album_model.objects.get.return_value = self.mock_album
         mock_photo_repo.save_within_folder.return_value = TEST_PHOTO_URL
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_photo
         mock_serializer_class.return_value = mock_serializer
+        mock_user.objects.all.return_value.values_list.return_value = [1]
 
-        
+
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
 
-        
+
         mock_album_model.objects.get.assert_called_once_with(pk=TEST_ALBUM_ID)
 
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
     @patch("core.services.photo_service.PhotoSerializer")
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_returns_serialized_photo(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class
+        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
     ):
-        
+
         mock_album_model.objects.get.return_value = self.mock_album
         mock_photo_repo.save_within_folder.return_value = TEST_PHOTO_URL
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_photo
         mock_serializer_class.return_value = mock_serializer
+        mock_user.objects.all.return_value.values_list.return_value = [1]
 
-        
+
         result = PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
 
-        
+
         self.assertEqual(result, self.serialized_photo)
 
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
     @patch("core.services.photo_service.PhotoSerializer")
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_passes_album_context_to_serializer(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class
+        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
     ):
-        
+
         mock_album_model.objects.get.return_value = self.mock_album
         mock_photo_repo.save_within_folder.return_value = TEST_PHOTO_URL
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_photo
         mock_serializer_class.return_value = mock_serializer
+        mock_user.objects.all.return_value.values_list.return_value = [1]
 
-        
+
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
 
-        
-        call_args = mock_serializer_class.call_args
-        context = call_args[1]["context"]
+
+        # First call is for validation (with context), second is for serialization
+        first_call_args = mock_serializer_class.call_args_list[0]
+        context = first_call_args[1]["context"]
         self.assertEqual(context["album"], self.mock_album)
         self.assertEqual(context["request"], self.mock_request)
 
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
     @patch("core.services.photo_service.PhotoSerializer")
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_saves_with_album_reference(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class
+        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
     ):
-        
+
         mock_album_model.objects.get.return_value = self.mock_album
         mock_photo_repo.save_within_folder.return_value = TEST_PHOTO_URL
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_photo
         mock_serializer_class.return_value = mock_serializer
+        mock_user.objects.all.return_value.values_list.return_value = [1]
 
-        
+
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
 
-        
+
         mock_serializer.save.assert_called_once_with(album=self.mock_album)
 
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
     @patch("core.services.photo_service.PhotoSerializer")
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_without_image_does_not_upload(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class
+        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
     ):
-        
+
         mock_request = MagicMock()
         mock_request.data = MagicMock()
         mock_request.data.copy.return_value = {
@@ -245,33 +263,38 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_photo
         mock_serializer_class.return_value = mock_serializer
+        mock_user.objects.all.return_value.values_list.return_value = [1]
 
-        
+
         PhotoService.save_photo(TEST_ALBUM_ID, mock_request)
 
-        
+
         mock_photo_repo.save_within_folder.assert_not_called()
 
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
     @patch("core.services.photo_service.PhotoSerializer")
     @patch("core.services.photo_service.Album")
     @patch("core.services.photo_service.photo_repository")
     def test_save_photo_sets_image_url_from_upload(
-        self, mock_photo_repo, mock_album_model, mock_serializer_class
+        self, mock_photo_repo, mock_album_model, mock_serializer_class, mock_user, mock_ws_send
     ):
-        
+
         mock_album_model.objects.get.return_value = self.mock_album
         mock_photo_repo.save_within_folder.return_value = TEST_PHOTO_URL
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         mock_serializer.data = self.serialized_photo
         mock_serializer_class.return_value = mock_serializer
+        mock_user.objects.all.return_value.values_list.return_value = [1]
 
-        
+
         PhotoService.save_photo(TEST_ALBUM_ID, self.mock_request)
 
-        
-        call_args = mock_serializer_class.call_args
-        data_passed = call_args[1]["data"]
+
+        # First call is for validation (with data)
+        first_call_args = mock_serializer_class.call_args_list[0]
+        data_passed = first_call_args[1]["data"]
         self.assertEqual(data_passed["image_url"], TEST_PHOTO_URL)
 
     @patch("core.services.photo_service.PhotoSerializer")
@@ -299,6 +322,160 @@ class TestPhotoServiceSavePhoto(unittest.TestCase):
 
         with self.assertRaises(Exception):
             PhotoService.save_photo(999, self.mock_request)
+
+
+class TestPhotoServiceDeletePhoto(unittest.TestCase):
+    """Tests for PhotoService.delete_photo method."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.mock_photo = MagicMock()
+        self.mock_photo.id = TEST_PHOTO_ID
+
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
+    @patch("core.services.photo_service.Photo")
+    def test_delete_photo_deletes_from_database(
+        self, mock_photo_model, mock_user_model, mock_ws_send
+    ):
+        mock_photo_model.objects.get.return_value = self.mock_photo
+        mock_user_model.objects.all.return_value.values_list.return_value = [1, 2]
+
+        PhotoService.delete_photo(TEST_PHOTO_ID, TEST_ALBUM_ID)
+
+        self.mock_photo.delete.assert_called_once()
+
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
+    @patch("core.services.photo_service.Photo")
+    def test_delete_photo_broadcasts_deletion_event(
+        self, mock_photo_model, mock_user_model, mock_ws_send
+    ):
+        mock_photo_model.objects.get.return_value = self.mock_photo
+        mock_user_model.objects.all.return_value.values_list.return_value = [1, 2]
+
+        PhotoService.delete_photo(TEST_PHOTO_ID, TEST_ALBUM_ID)
+
+        # Should broadcast to all users
+        assert mock_ws_send.call_count == 2
+
+    @patch("core.services.photo_service.Photo")
+    def test_delete_photo_raises_not_found_for_nonexistent_photo(
+        self, mock_photo_model
+    ):
+        from rest_framework.exceptions import NotFound
+
+        mock_photo_model.DoesNotExist = Exception
+        mock_photo_model.objects.get.side_effect = mock_photo_model.DoesNotExist
+
+        with self.assertRaises(NotFound):
+            PhotoService.delete_photo(999, TEST_ALBUM_ID)
+
+
+class TestPhotoServiceUpdatePhoto(unittest.TestCase):
+    """Tests for PhotoService.update_photo method."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.mock_photo = MagicMock()
+        self.mock_photo.id = TEST_PHOTO_ID
+        self.serialized_photo = {
+            "id": TEST_PHOTO_ID,
+            "image_url": TEST_PHOTO_URL,
+            "caption": "Updated caption",
+            "location": TEST_PHOTO_LOCATION,
+        }
+
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
+    @patch("core.services.photo_service.PhotoSerializer")
+    @patch("core.services.photo_service.Photo")
+    def test_update_photo_updates_fields(
+        self, mock_photo_model, mock_serializer_class, mock_user_model, mock_ws_send
+    ):
+        mock_photo_model.objects.get.return_value = self.mock_photo
+        mock_serializer = MagicMock()
+        mock_serializer.is_valid.return_value = True
+        mock_serializer.data = self.serialized_photo
+        mock_serializer_class.return_value = mock_serializer
+        mock_user_model.objects.all.return_value.values_list.return_value = [1]
+
+        result = PhotoService.update_photo(
+            TEST_PHOTO_ID, TEST_ALBUM_ID, {"caption": "Updated caption"}
+        )
+
+        mock_serializer.save.assert_called_once()
+        self.assertEqual(result, self.serialized_photo)
+
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
+    @patch("core.services.photo_service.PhotoSerializer")
+    @patch("core.services.photo_service.Photo")
+    def test_update_photo_broadcasts_update_event(
+        self, mock_photo_model, mock_serializer_class, mock_user_model, mock_ws_send
+    ):
+        mock_photo_model.objects.get.return_value = self.mock_photo
+        mock_serializer = MagicMock()
+        mock_serializer.is_valid.return_value = True
+        mock_serializer.data = self.serialized_photo
+        mock_serializer_class.return_value = mock_serializer
+        mock_user_model.objects.all.return_value.values_list.return_value = [1, 2, 3]
+
+        PhotoService.update_photo(TEST_PHOTO_ID, TEST_ALBUM_ID, {"caption": "New"})
+
+        # Should broadcast to all 3 users
+        assert mock_ws_send.call_count == 3
+
+    @patch("core.services.photo_service.Photo")
+    def test_update_photo_raises_not_found_for_nonexistent_photo(
+        self, mock_photo_model
+    ):
+        from rest_framework.exceptions import NotFound
+
+        mock_photo_model.DoesNotExist = Exception
+        mock_photo_model.objects.get.side_effect = mock_photo_model.DoesNotExist
+
+        with self.assertRaises(NotFound):
+            PhotoService.update_photo(999, TEST_ALBUM_ID, {})
+
+
+class TestPhotoServiceWebSocketBroadcast(unittest.TestCase):
+    """Tests for PhotoService WebSocket broadcast functionality."""
+
+    @patch("core.services.photo_service.send_ws_message_to_user")
+    @patch("core.services.photo_service.User")
+    @patch("core.services.photo_service.PhotoSerializer")
+    @patch("core.services.photo_service.Album")
+    @patch("core.services.photo_service.photo_repository")
+    def test_save_photo_broadcasts_upload_event(
+        self,
+        mock_photo_repo,
+        mock_album_model,
+        mock_serializer_class,
+        mock_user_model,
+        mock_ws_send,
+    ):
+        mock_album = MagicMock()
+        mock_album.id = TEST_ALBUM_ID
+        mock_album_model.objects.get.return_value = mock_album
+        mock_photo_repo.save_within_folder.return_value = TEST_PHOTO_URL
+
+        mock_serializer = MagicMock()
+        mock_serializer.is_valid.return_value = True
+        mock_serializer.data = {"id": 1, "image_url": TEST_PHOTO_URL}
+        mock_serializer_class.return_value = mock_serializer
+
+        mock_user_model.objects.all.return_value.values_list.return_value = [1, 2]
+
+        mock_request = MagicMock()
+        mock_request.data = MagicMock()
+        mock_request.data.copy.return_value = {"caption": "Test"}
+        mock_request.FILES = {}
+
+        PhotoService.save_photo(TEST_ALBUM_ID, mock_request)
+
+        # Should broadcast to all users
+        assert mock_ws_send.call_count == 2
 
 
 if __name__ == "__main__":

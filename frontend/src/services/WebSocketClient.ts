@@ -1,17 +1,32 @@
 import { WebSocketMessage, WebSocketMessageTable } from "../types/websocket-messages"
 import { WebSocketMessageType } from "../types/websockets"
+
 type WebSocketCallback<T extends WebSocketMessageType> = (data: WebSocketMessageTable[T]) => void
 type WebSocketCallbacks = {
     [key in WebSocketMessageType]: Set<WebSocketCallback<key>>
 }
 
+export type ConnectionStatus = "disconnected" | "connecting" | "connected" | "reconnecting"
+type ConnectionStatusCallback = (status: ConnectionStatus) => void
+
+// Configuration constants
+const INITIAL_RECONNECT_DELAY = 1000 // 1 second
+const MAX_RECONNECT_DELAY = 30000 // 30 seconds
+const RECONNECT_MULTIPLIER = 1.5
+const MAX_RECONNECT_ATTEMPTS = 20
+const MESSAGE_QUEUE_MAX_SIZE = 100
+const MESSAGE_QUEUE_MAX_AGE = 60000 // 1 minute
+
+interface QueuedMessage {
+    type: WebSocketMessageType
+    data: unknown
+    timestamp: number
+}
+
 const buildWebSocketCallbacks = (): WebSocketCallbacks => {
     const webSocketCallback = {} as WebSocketCallbacks
     for (const messageType of Object.values(WebSocketMessageType)) {
-        // TODO: type this properly to prevent mistakes
-        // The end result of the function is still typed properly
-        // next line is marked as eslint disabled to avoid TypeScript error
-        webSocketCallback[messageType] = new Set() as any // eslint-disable-line
+        webSocketCallback[messageType] = new Set() as never
     }
     return webSocketCallback
 }
@@ -19,11 +34,46 @@ const buildWebSocketCallbacks = (): WebSocketCallbacks => {
 export class WebSocketClient {
     private webSocket: WebSocket | null = null
     private accessToken: string | null = null
+    private apiUrl: string | null = null
     private callbacks: WebSocketCallbacks = buildWebSocketCallbacks()
     private reconnectionTimeout: ReturnType<typeof setTimeout> | null = null
-    // Queue of messages waiting for connection
-    // TODO: Add timeout (or something else) for messages that should be discarded when it takes too long
-    private sendQueue: Parameters<WebSocketClient["send"]>[] = []
+    private reconnectAttempts = 0
+    private currentReconnectDelay = INITIAL_RECONNECT_DELAY
+    private sendQueue: QueuedMessage[] = []
+    private connectionStatus: ConnectionStatus = "disconnected"
+    private connectionStatusCallbacks: Set<ConnectionStatusCallback> = new Set()
+    private isManualDisconnect = false
+
+    /**
+     * Get current connection status
+     */
+    getConnectionStatus(): ConnectionStatus {
+        return this.connectionStatus
+    }
+
+    /**
+     * Subscribe to connection status changes
+     */
+    onConnectionStatusChange(callback: ConnectionStatusCallback): () => void {
+        this.connectionStatusCallbacks.add(callback)
+        // Immediately notify of current status
+        callback(this.connectionStatus)
+        // Return unsubscribe function
+        return () => {
+            this.connectionStatusCallbacks.delete(callback)
+        }
+    }
+
+    private setConnectionStatus(status: ConnectionStatus) {
+        if (this.connectionStatus !== status) {
+            this.connectionStatus = status
+            this.connectionStatusCallbacks.forEach((cb) => cb(status))
+        }
+    }
+
+    /**
+     * Connect to WebSocket server
+     */
     connect(apiUrl: string, accessToken: string) {
         if (this.accessToken === accessToken) {
             if (
@@ -33,73 +83,202 @@ export class WebSocketClient {
                 return // Connection is already OK
             }
         } else {
-            // Clean up to make sure messages for previous token won't be sent or received accidentaly
+            // Clean up to make sure messages for previous token won't be sent or received accidentally
             this.disconnect()
         }
+
+        this.isManualDisconnect = false
         this.accessToken = accessToken
+        this.apiUrl = apiUrl
+        this.setConnectionStatus(this.reconnectAttempts > 0 ? "reconnecting" : "connecting")
+
         const url = new URL(apiUrl)
 
-        url.protocol = "wss:"
-        // if current url is http, change it to ws
-        if (window.location.href.startsWith("http:")) {
-            url.protocol = "ws:"
+        // Use secure WebSocket for HTTPS, insecure for HTTP (dev)
+        url.protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+        url.searchParams.set("accessToken", accessToken)
+
+        try {
+            this.webSocket = new WebSocket(url.toString())
+        } catch (error) {
+            console.error("Failed to create WebSocket:", error)
+            this.scheduleReconnect()
+            return
         }
 
-        url.searchParams.set("accessToken", accessToken)
-        this.webSocket = new WebSocket(url.toString())
         const webSocket = this.webSocket
+
         webSocket.onopen = () => {
             console.debug("WebSocket connected")
-            // Send queued messages
-            const oldSendQueue = this.sendQueue
-            this.sendQueue = []
-            oldSendQueue.forEach(([type, data]) => this.send(type, data))
+            this.setConnectionStatus("connected")
+            this.reconnectAttempts = 0
+            this.currentReconnectDelay = INITIAL_RECONNECT_DELAY
+
+            // Send queued messages (filter out expired ones)
+            this.flushMessageQueue()
         }
+
         webSocket.onclose = (event) => {
-            // Involuntary disconnection. See 'disconnect' method to disconnect voluntarily.
+            if (this.isManualDisconnect) {
+                console.debug(`WebSocket disconnected voluntarily (code: ${event.code})`)
+                this.setConnectionStatus("disconnected")
+                return
+            }
+
+            // Involuntary disconnection
             console.debug(
-                `WebSocket has been involuntarily disconnected (code: ${event.code}). Reconnecting...`
+                `WebSocket disconnected involuntarily (code: ${event.code}, reason: ${event.reason}). Scheduling reconnect...`
             )
-            this.reconnectionTimeout = setTimeout(() => this.connect(apiUrl, accessToken), 2000)
+            this.setConnectionStatus("reconnecting")
+            this.scheduleReconnect()
         }
+
         webSocket.onmessage = <T extends WebSocketMessageType>(event: MessageEvent<string>) => {
-            const messageString = event.data
+            this.handleMessage(event)
+        }
+
+        webSocket.onerror = (event: Event) => {
+            console.error("WebSocket error:", event)
+        }
+    }
+
+    private handleMessage<T extends WebSocketMessageType>(event: MessageEvent<string>) {
+        const messageString = event.data
+
+        try {
             const message: WebSocketMessage<T> = JSON.parse(messageString)
-            console.debug("WebSocket received message", message)
-            if (!message.type || !message.data) {
+            console.debug("WebSocket received message:", message.type)
+
+            // Handle server PING - respond with PONG
+            if (message.type === ("PING" as T)) {
+                this.sendRaw({ type: "PONG", data: { timestamp: new Date().toISOString() } })
+                return
+            }
+
+            // Handle ERROR messages
+            if (message.type === ("ERROR" as T)) {
+                console.warn("WebSocket error from server:", message.data)
+                return
+            }
+
+            if (!message.type || message.data === undefined) {
                 console.warn(
-                    "WebSocket message is not a valid WebSocketMessage (missing type or data fields)"
+                    "WebSocket message is not valid (missing type or data fields)"
                 )
                 return
             }
+
             if (!Object.values(WebSocketMessageType).includes(message.type)) {
-                console.warn(`Invalid WebSocket message type: ${message.type}`)
+                console.warn(`Unknown WebSocket message type: ${message.type}`)
                 return
             }
+
             const callbacksForType = this.callbacks[message.type]
             for (const callback of callbacksForType) {
-                callback(message.data)
+                try {
+                    callback(message.data)
+                } catch (error) {
+                    console.error(`Error in WebSocket callback for ${message.type}:`, error)
+                }
             }
-        }
-        webSocket.onerror = (event: Event) => {
-            console.error("WebSocket errored", event)
+        } catch (error) {
+            console.error("Failed to parse WebSocket message:", error)
         }
     }
+
+    private scheduleReconnect() {
+        if (this.isManualDisconnect) {
+            return
+        }
+
+        if (this.reconnectionTimeout) {
+            clearTimeout(this.reconnectionTimeout)
+        }
+
+        if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            console.error(
+                `Max reconnection attempts (${MAX_RECONNECT_ATTEMPTS}) reached. Giving up.`
+            )
+            this.setConnectionStatus("disconnected")
+            return
+        }
+
+        this.reconnectAttempts++
+
+        // Exponential backoff with jitter
+        const jitter = Math.random() * 0.3 * this.currentReconnectDelay
+        const delay = Math.min(
+            this.currentReconnectDelay + jitter,
+            MAX_RECONNECT_DELAY
+        )
+
+        console.debug(
+            `Scheduling reconnect attempt ${this.reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS} in ${Math.round(delay)}ms`
+        )
+
+        this.reconnectionTimeout = setTimeout(() => {
+            if (this.apiUrl && this.accessToken) {
+                this.connect(this.apiUrl, this.accessToken)
+            }
+        }, delay)
+
+        // Increase delay for next attempt
+        this.currentReconnectDelay = Math.min(
+            this.currentReconnectDelay * RECONNECT_MULTIPLIER,
+            MAX_RECONNECT_DELAY
+        )
+    }
+
+    private flushMessageQueue() {
+        const now = Date.now()
+        // Filter out expired messages
+        const validMessages = this.sendQueue.filter(
+            (msg) => now - msg.timestamp < MESSAGE_QUEUE_MAX_AGE
+        )
+
+        this.sendQueue = []
+
+        validMessages.forEach((msg) => {
+            this.send(msg.type, msg.data as WebSocketMessageTable[typeof msg.type])
+        })
+
+        if (validMessages.length < this.sendQueue.length) {
+            console.debug(
+                `Dropped ${this.sendQueue.length - validMessages.length} expired queued messages`
+            )
+        }
+    }
+
+    /**
+     * Disconnect from WebSocket server
+     */
     disconnect() {
-        // Cancel any previous reconnection attempt
+        this.isManualDisconnect = true
+
+        // Cancel any pending reconnection
         if (this.reconnectionTimeout) {
             clearTimeout(this.reconnectionTimeout)
             this.reconnectionTimeout = null
         }
+
         this.sendQueue = []
         this.accessToken = null
+        this.apiUrl = null
+        this.reconnectAttempts = 0
+        this.currentReconnectDelay = INITIAL_RECONNECT_DELAY
+
         if (this.webSocket) {
-            this.webSocket.onclose = (event) =>
-                console.debug(`WebSocket has been voluntarily disconnected (code: ${event.code})`)
-            this.webSocket.close()
+            this.webSocket.onclose = null // Prevent reconnection logic
+            this.webSocket.close(1000, "Client disconnect")
             this.webSocket = null
         }
+
+        this.setConnectionStatus("disconnected")
     }
+
+    /**
+     * Subscribe to a specific message type
+     */
     bind<T extends WebSocketMessageType>(
         type: T,
         callback: (data: WebSocketMessageTable[T]) => void
@@ -107,6 +286,10 @@ export class WebSocketClient {
         const callbacksForType = this.callbacks[type]
         callbacksForType.add(callback)
     }
+
+    /**
+     * Unsubscribe from a specific message type
+     */
     unbind<T extends WebSocketMessageType>(
         type: T,
         callback: (data: WebSocketMessageTable[T]) => void
@@ -114,11 +297,49 @@ export class WebSocketClient {
         const callbacksForType = this.callbacks[type]
         callbacksForType.delete(callback)
     }
+
+    /**
+     * Send a typed message to the server
+     */
     send<T extends WebSocketMessageType>(type: T, data: WebSocketMessageTable[T]) {
         if (!this.webSocket || this.webSocket.readyState !== WebSocket.OPEN) {
-            this.sendQueue.push([type, data])
+            // Queue message for later if not connected
+            if (this.sendQueue.length < MESSAGE_QUEUE_MAX_SIZE) {
+                this.sendQueue.push({ type, data, timestamp: Date.now() })
+            } else {
+                console.warn("Message queue full, dropping message")
+            }
             return
         }
-        this.webSocket.send(JSON.stringify({ type, data }))
+        this.sendRaw({ type, data })
+    }
+
+    /**
+     * Send raw data without queueing
+     */
+    private sendRaw(data: unknown) {
+        if (this.webSocket?.readyState === WebSocket.OPEN) {
+            this.webSocket.send(JSON.stringify(data))
+        }
+    }
+
+    /**
+     * Check if currently connected
+     */
+    isConnected(): boolean {
+        return this.webSocket?.readyState === WebSocket.OPEN
+    }
+
+    /**
+     * Force immediate reconnection attempt
+     */
+    forceReconnect() {
+        if (this.apiUrl && this.accessToken) {
+            this.reconnectAttempts = 0
+            this.currentReconnectDelay = INITIAL_RECONNECT_DELAY
+            this.disconnect()
+            this.isManualDisconnect = false
+            this.connect(this.apiUrl, this.accessToken)
+        }
     }
 }
