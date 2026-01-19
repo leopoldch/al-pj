@@ -1,26 +1,23 @@
 FROM python:3.12-slim
 
-ENV POETRY_VERSION=1.8.2 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
 
-RUN apt-get update && apt-get install -y curl && \
-    pip install "poetry==$POETRY_VERSION" && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock /app/
+COPY pyproject.toml uv.lock /app/
 
-RUN poetry config virtualenvs.create false \
-    && poetry install --only main
-
-RUN pip install daphne
+RUN uv sync --frozen --no-dev --no-install-project
 
 COPY . /app/
 
-RUN poetry run python manage.py collectstatic --noinput
+RUN uv sync --frozen --no-dev
 
+RUN DJANGO_SETTINGS_MODULE=backend.settings_test SECRET_KEY=build-key uv run python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
@@ -42,4 +39,4 @@ CMD ["/bin/sh", "-c", "\
     : ${AWS_ACCESS_SECRET:?Missing AWS_ACCESS_SECRET} && \
     : ${AWS_REGION:?Missing AWS_REGION} && \
     : ${AWS_BUCKET_NAME:?Missing AWS_BUCKET_NAME} && \
-    daphne -b 0.0.0.0 -p 8000 backend.asgi:application"]
+    uv run daphne -b 0.0.0.0 -p 8000 backend.asgi:application"]

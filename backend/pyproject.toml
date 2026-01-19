@@ -1,24 +1,82 @@
-[tool.poetry]
+[project]
 name = "backend"
 version = "0.1.0"
-description = ""
-authors = ["leo <leopold@lchappuis.fr>"]
+description = "Backend API for al-pj application"
+authors = [{ name = "leo", email = "leopold@lchappuis.fr" }]
 readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "python-dotenv>=1.1.0",
+    "django>=5.2",
+    "pymysql>=1.1.1",
+    "channels>=4.2.2",
+    "djangorestframework>=3.16.0",
+    "djangorestframework-simplejwt>=5.5.0",
+    "django-cors-headers>=4.7.0",
+    "daphne>=4.2.0",
+    "channels-redis>=4.2.1",
+    "boto3>=1.39.15",
+]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-python-dotenv = "^1.1.0"
-django = "^5.2"
-pymysql = "^1.1.1"
-channels = "^4.2.2"
-djangorestframework = "^3.16.0"
-djangorestframework-simplejwt = "^5.5.0"
-django-cors-headers = "^4.7.0"
-daphne = "^4.2.0"
-channels-redis = "^4.2.1"
-boto3 = "^1.39.15"
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-django>=4.9.0",
+    "pytest-cov>=6.0.0",
+    "pytest-timeout>=2.3.0",
+    "coverage>=7.6.0",
+]
 
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "backend.settings_test"
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+testpaths = ["core/tests"]
+norecursedirs = [".venv", "venv", ".git", "__pycache__", "*.egg-info", "node_modules", "htmlcov"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--ignore=.venv",
+    "--ignore=venv",
+    "--timeout=30",
+    "--cov=core",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=80"
+]
+markers = [
+    "unit: Unit tests (fast, isolated)",
+    "integration: Integration tests (may use database)",
+    "slow: Slow tests that should be run separately",
+]
+
+[tool.coverage.run]
+source = ["core"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/__init__.py",
+    "*/admin/*",
+]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+show_missing = true
+precision = 2
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
