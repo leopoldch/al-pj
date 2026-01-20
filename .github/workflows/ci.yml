@@ -9,7 +9,6 @@ on:
 jobs:
   execute_backend_tests:
     runs-on: ubuntu-latest
-    # Removed working-directory: backend, now runs from root
 
     steps:
       - name: Checkout repository
@@ -38,7 +37,7 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: "backend.settings_test"
           SECRET_KEY: "test-secret-key-for-ci"
-        # Updated coverage path to backend/core
+          PYTHONPATH: "backend"
         run: uv run pytest --cov=backend/core --cov-report=xml --cov-report=term-missing --cov-fail-under=80
 
       - name: Upload coverage report
@@ -62,7 +61,6 @@ jobs:
         with:
           node-version: '22.4.1'
 
-      # Using root commands that proxy to frontend
       - name: Install dependencies
         run: npm run install-all
 
