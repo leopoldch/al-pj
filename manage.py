@@ -3,10 +3,15 @@
 
 import os
 import sys
+from pathlib import Path
 
 
 def main():
     """Run administrative tasks."""
+    # Add the backend directory to sys.path so that 'core' and 'backend' packages can be imported
+    BASE_DIR = Path(__file__).resolve().parent
+    sys.path.append(str(BASE_DIR / "backend"))
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
     try:
         from django.core.management import execute_from_command_line

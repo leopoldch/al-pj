@@ -33,7 +33,7 @@ DJANGO_SETTINGS_MODULE = "backend.settings_test"
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-testpaths = ["core/tests"]
+testpaths = ["backend/core/tests"]
 norecursedirs = [".venv", "venv", ".git", "__pycache__", "*.egg-info", "node_modules", "htmlcov"]
 filterwarnings = [
     "ignore::DeprecationWarning",
@@ -58,7 +58,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["core"]
+source = ["backend/core"]
 omit = [
     "*/migrations/*",
     "*/tests/*",

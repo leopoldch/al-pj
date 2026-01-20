@@ -9,11 +9,15 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
+# Copy dependency files from root
 COPY pyproject.toml uv.lock /app/
 
 RUN uv sync --frozen --no-dev --no-install-project
 
-COPY . /app/
+# Copy the rest of the backend files
+COPY backend/ /app/
+# Copy manage.py from root
+COPY manage.py /app/
 
 RUN uv sync --frozen --no-dev
 

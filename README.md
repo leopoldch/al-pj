@@ -42,8 +42,7 @@ docker run -d -p 6379:6379 redis:7
 We use `uv` for blazing fast dependency management.
 
 ```bash
-cd backend
-
+# From project root
 uv sync
 
 uv run python manage.py migrate
@@ -54,9 +53,8 @@ uv run python manage.py runserver
 ### 3. Frontend Setup
 
 ```bash
-cd frontend
-
-npm install
+# From project root
+npm run install-all
 
 npm start
 ```
