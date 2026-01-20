@@ -38,14 +38,19 @@ jobs:
           DJANGO_SETTINGS_MODULE: "backend.settings_test"
           SECRET_KEY: "test-secret-key-for-ci"
           PYTHONPATH: "backend"
-        run: uv run pytest --cov=backend/core --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+        run: uv run pytest --cov=backend/core --cov-report=xml --cov-report=term-missing --cov-fail-under=80 --junitxml=test-results.xml
 
-      - name: Upload coverage report
+      - name: Generate PDF Test Report
+        run: uv run python backend/scripts/generate_pdf_report.py test-results.xml test-report.pdf
+
+      - name: Upload coverage and test report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: coverage-report
-          path: coverage.xml
+          name: backend-reports
+          path: |
+            coverage.xml
+            test-report.pdf
           retention-days: 7
 
 

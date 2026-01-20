@@ -4,4 +4,7 @@ node_modules
 .coverage
 coverage.xml
 htmlcov/
-pytest.ini
+.pytest_cache
+.venv
+test-report.pdf
+test-results.xml
