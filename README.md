@@ -10,7 +10,8 @@ It allows for an easy production deployment via **Docker Compose** or local deve
 The easiest way to run the application is using Docker Compose.
 
 ### 1. Configure Environment Variables
-Create a `.env` file in the root directory (or ensure these variables are available in your environment).  
+Create a **single** `.env` file in the root directory.
+This unified configuration file is used by both the **Backend** (Django) and the **Frontend** (React/Docker).
 See the [Environment Variables](#environment-variables) section below for details.
 
 ### 2. Run with Docker Compose
@@ -62,6 +63,20 @@ npm start
 ### 4. Code Quality
 - **Backend Tests**: `uv run pytest`
 - **Frontend Lint**: `npm run lint` or `npm run lint:fix`
+
+---
+
+## CI/CD & Automated Reports
+
+This project uses **GitHub Actions** for Continuous Integration.
+On every push or pull request to the `main` branch, the following checks are performed:
+
+1.  **Backend Tests**: Runs the Django test suite with coverage analysis.
+2.  **Frontend Lint & Build**: Checks code style and builds the React application.
+3.  **Key Feature**: Automatic generation of a **PDF Test Report**.
+    - A detailed PDF report (`test-report.pdf`) is generated after every backend test run.
+    - It includes execution statistics, a list of all executed tests with timings, and details on any failures.
+    - You can download this report from the **Artifacts** section of the GitHub Actions workflow summary.
 
 ---
 
