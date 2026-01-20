@@ -26,39 +26,12 @@ dev = [
     "pytest-cov>=6.0.0",
     "pytest-timeout>=2.3.0",
     "coverage>=7.6.0",
+    "fpdf2>=2.8.5",
 ]
 
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "backend.settings_test"
-python_files = ["test_*.py", "*_test.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-testpaths = ["core/tests"]
-norecursedirs = [".venv", "venv", ".git", "__pycache__", "*.egg-info", "node_modules", "htmlcov"]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-]
-addopts = [
-    "-v",
-    "--tb=short",
-    "--strict-markers",
-    "--ignore=.venv",
-    "--ignore=venv",
-    "--timeout=30",
-    "--cov=core",
-    "--cov-report=term-missing",
-    "--cov-report=html:htmlcov",
-    "--cov-fail-under=80"
-]
-markers = [
-    "unit: Unit tests (fast, isolated)",
-    "integration: Integration tests (may use database)",
-    "slow: Slow tests that should be run separately",
-]
 
 [tool.coverage.run]
-source = ["core"]
+source = ["backend/core"]
 omit = [
     "*/migrations/*",
     "*/tests/*",
