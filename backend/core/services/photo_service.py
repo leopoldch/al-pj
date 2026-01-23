@@ -13,6 +13,15 @@ logger = logging.getLogger(__name__)
 class PhotoService:
 
     @staticmethod
+    def _sanitize_for_log(value):
+        """
+        Return a string suitable for logging by removing newline characters
+        to prevent log injection via line breaks.
+        """
+        text = str(value)
+        return text.replace("\r", "").replace("\n", "")
+
+    @staticmethod
     def get_photos_by_album_id(album_id):
         photos = Photo.objects.filter(album_id=album_id)
         photos = PhotoSerializer(photos, many=True).data
@@ -43,7 +52,8 @@ class PhotoService:
         photo = serializer.save(album=album)
         photo_data = PhotoSerializer(photo).data
 
-        logger.info(f"Photo uploaded to album {album_id}: {photo.id}")
+        safe_album_id = cls._sanitize_for_log(album_id)
+        logger.info(f"Photo uploaded to album {safe_album_id}: {photo.id}")
 
         # Broadcast the upload event
         cls._broadcast_change(
@@ -64,7 +74,8 @@ class PhotoService:
         deleted_id = photo.id
         photo.delete()
 
-        logger.info(f"Photo deleted from album {album_id}: {deleted_id}")
+        safe_album_id = cls._sanitize_for_log(album_id)
+        logger.info(f"Photo deleted from album {safe_album_id}: {deleted_id}")
 
         # Broadcast the deletion event
         cls._broadcast_change(
@@ -86,7 +97,8 @@ class PhotoService:
         photo = serializer.save()
         photo_data = PhotoSerializer(photo).data
 
-        logger.info(f"Photo updated in album {album_id}: {photo.id}")
+        safe_album_id = cls._sanitize_for_log(album_id)
+        logger.info(f"Photo updated in album {safe_album_id}: {photo.id}")
 
         # Broadcast the update event
         cls._broadcast_change(
