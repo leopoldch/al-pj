@@ -1,4 +1,8 @@
-from .settings import *
+from . import settings as base_settings
+
+for _name in dir(base_settings):
+    if not _name.startswith("_"):
+        globals()[_name] = getattr(base_settings, _name)
 
 DATABASES = {
     "default": {
