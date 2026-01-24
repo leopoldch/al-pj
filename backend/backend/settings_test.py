@@ -1,4 +1,10 @@
-from .settings import *
+from . import settings as base_settings
+
+# Import all public attributes from the base settings module into this namespace,
+# emulating "from .settings import *" without using a wildcard import.
+for _name in dir(base_settings):
+    if not _name.startswith("_"):
+        globals()[_name] = getattr(base_settings, _name)
 
 DATABASES = {
     "default": {
