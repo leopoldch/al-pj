@@ -80,9 +80,9 @@ def generate_report(xml_file, output_file):
 
         for testcase in root.findall('.//testcase'):
             classname = testcase.get('classname')
-            name = testcase.get('name')
+            testcase_name = testcase.get('name')
             time_val = float(testcase.get('time', 0.0))
-            full_name = f"{classname}.{name}"
+            full_name = f"{classname}.{testcase_name}"
             
             status = 'PASSED'
             pdf.set_text_color(0, 128, 0)
@@ -116,11 +116,11 @@ def generate_report(xml_file, output_file):
                 
                 if failure is not None or error is not None:
                     classname = testcase.get('classname')
-                    name = testcase.get('name')
+                    testcase_name = testcase.get('name')
                     message = (failure.get('message') if failure is not None else error.get('message')) or "No message"
                     
                     pdf.set_text_color(255, 0, 0)
-                    pdf.cell(0, 8, f'FAIL: {classname}.{name}', new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(0, 8, f'FAIL: {classname}.{testcase_name}', new_x="LMARGIN", new_y="NEXT")
                     pdf.set_text_color(0, 0, 0)
                     pdf.multi_cell(0, 5, f'Message: {message[:300]}...')
                     pdf.ln(3)
