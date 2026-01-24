@@ -23,11 +23,7 @@ def _sanitize_for_log(value):
 class PhotoService:
 
     @staticmethod
-    def _sanitize_for_log(value):
-        """
-        Return a string suitable for logging by removing newline characters
-        to prevent log injection via line breaks.
-        """
+    def _sanitize_for_log(value) -> str:
         text = str(value)
         return text.replace("\r", "").replace("\n", "")
 
@@ -62,11 +58,9 @@ class PhotoService:
         photo = serializer.save(album=album)
         photo_data = PhotoSerializer(photo).data
 
-        logger.info(
-            "Photo uploaded to album %s: %s",
-            _sanitize_for_log(album_id),
-            _sanitize_for_log(photo.id),
-        )
+        safe_album_id = cls._sanitize_for_log(album_id)
+        safe_photo_id = cls._sanitize_for_log(photo.id)
+        logger.info(f"Photo uploaded to album {safe_album_id}: {safe_photo_id}")
 
         # Broadcast the upload event
         cls._broadcast_change(
@@ -87,11 +81,9 @@ class PhotoService:
         deleted_id = photo.id
         photo.delete()
 
-        logger.info(
-            "Photo deleted from album %s: %s",
-            _sanitize_for_log(album_id),
-            _sanitize_for_log(deleted_id),
-        )
+        safe_album_id = cls._sanitize_for_log(album_id)
+        safe_deleted_id = cls._sanitize_for_log(deleted_id)
+        logger.info(f"Photo deleted from album {safe_album_id}: {safe_deleted_id}")
 
         # Broadcast the deletion event
         cls._broadcast_change(
@@ -113,11 +105,9 @@ class PhotoService:
         photo = serializer.save()
         photo_data = PhotoSerializer(photo).data
 
-        logger.info(
-            "Photo updated in album %s: %s",
-            _sanitize_for_log(album_id),
-            _sanitize_for_log(photo.id),
-        )
+        safe_album_id = cls._sanitize_for_log(album_id)
+        safe_photo_id = cls._sanitize_for_log(photo.id)
+        logger.info(f"Photo updated in album {safe_album_id}: {safe_photo_id}")
 
         # Broadcast the update event
         cls._broadcast_change(
