@@ -117,7 +117,7 @@ class WebSocketManager(AsyncWebsocketConsumer):
             try:
                 await self.heartbeat_task
             except asyncio.CancelledError:
-                pass
+                logger.debug("Heartbeat task cancelled during disconnect")
 
         if not user or not user.is_authenticated:
             logger.debug(f"Anonymous user disconnected (code: {close_code})")
