@@ -23,6 +23,15 @@ def _sanitize_for_log(value):
 class PhotoService:
 
     @staticmethod
+    def _sanitize_for_log(value):
+        """
+        Return a string suitable for logging by removing newline characters
+        to prevent log injection via line breaks.
+        """
+        text = str(value)
+        return text.replace("\r", "").replace("\n", "")
+
+    @staticmethod
     def get_photos_by_album_id(album_id):
         photos = Photo.objects.filter(album_id=album_id)
         photos = PhotoSerializer(photos, many=True).data
