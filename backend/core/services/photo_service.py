@@ -10,13 +10,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def _sanitize_for_log(value):
+    """
+    Return a log-safe string representation of `value` by removing
+    newline characters that could be used for log injection.
+    """
+    text = str(value)
+    # Replace CRLF, CR, and LF with a space to keep the log on a single line.
+    return text.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
+
+
 class PhotoService:
 
     @staticmethod
     def _sanitize_for_log(value) -> str:
-        """
-        Sanitize a value for safe logging by removing newline characters.
-        """
         text = str(value)
         return text.replace("\r", "").replace("\n", "")
 
