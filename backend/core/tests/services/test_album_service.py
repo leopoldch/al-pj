@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from rest_framework.exceptions import ValidationError, NotFound
-from django.http import Http404
 
 from core.services.album_service import AlbumService
 
