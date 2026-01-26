@@ -2,7 +2,7 @@
 Tests for WebSocket utility functions.
 """
 
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 from core.websocket.utils import send_ws_message_to_user, broadcast_ws_message
 from core.websocket.messages import WebSocketMessageType
 
