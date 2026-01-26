@@ -1,5 +1,5 @@
 from django.contrib import admin
-from ..models import Message, BucketPoint, Album, Photo
+from ..models import BucketPoint
 
 
 class BucketPointAdmin(admin.ModelAdmin):
