@@ -1,5 +1,4 @@
 from django.test import TestCase, RequestFactory
-from rest_framework.views import APIView
 from rest_framework import status
 from core.exceptions.handler import custom_exception_handler
 from core.exceptions import ResourceNotFound, InsufficientRights, CloudUploadError
