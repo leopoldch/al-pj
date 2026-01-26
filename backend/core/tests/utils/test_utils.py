@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from core.utils import send_email, send_formatted_mail
-import os
+
 
 
 class TestUtils(unittest.TestCase):
