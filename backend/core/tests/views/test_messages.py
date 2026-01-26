@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, patch
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 from core.views.messages import MessageView
-from rest_framework.exceptions import ValidationError, NotFound
 
 TEST_USER_ID = 1
 TEST_MESSAGE_ID = 55
