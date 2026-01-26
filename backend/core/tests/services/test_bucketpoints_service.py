@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 from rest_framework.exceptions import ValidationError, NotFound
 
 from core.services.bucketpoints_service import BucketPointService
