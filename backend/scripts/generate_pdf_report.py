@@ -22,7 +22,6 @@ def generate_report(xml_file, output_file):
         if root.tag == 'testsuites':
             root = root[0]
             
-        name = root.get('name', 'Backend Tests')
         tests = int(root.get('tests', 0))
         failures = int(root.get('failures', 0))
         errors = int(root.get('errors', 0))
