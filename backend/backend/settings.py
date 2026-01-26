@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import sys
-import logging
 from dotenv import load_dotenv, find_dotenv
 from datetime import timedelta
 
