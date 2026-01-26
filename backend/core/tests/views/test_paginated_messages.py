@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, patch
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 from core.views.messages import PaginatedMessageView
-from django.contrib.auth.models import User
 
 TEST_USER_ID = 1
 
