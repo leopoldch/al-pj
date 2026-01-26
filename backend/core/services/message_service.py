@@ -5,7 +5,7 @@ from core.websocket.messages import WebSocketMessageType
 from core.utils import send_formatted_mail
 from channels.layers import get_channel_layer
 from ..models import Message
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import ValidationError
 
 
 class MessageService:
