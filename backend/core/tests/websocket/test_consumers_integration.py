@@ -5,7 +5,6 @@ from channels.routing import URLRouter
 from django.contrib.auth.models import User
 import jwt
 from django.conf import settings
-from core.websocket.consumers import WebSocketManager
 from unittest.mock import patch, AsyncMock
 
 
