@@ -2,7 +2,6 @@
 Tests for WebSocket utility functions.
 """
 
-import pytest
 from unittest.mock import patch, MagicMock, call
 from asgiref.sync import async_to_sync
 from core.websocket.utils import send_ws_message_to_user, broadcast_ws_message
