@@ -7,7 +7,7 @@ load_dotenv(find_dotenv())
 environment = os.getenv("PHOTO_STORAGE_TYPE", "AWS")
 
 if environment == "AWS":
-    photo_repository = AwsPhotoSaver()
+    AwsPhotoSaver()
 else:
     # photo_repository = LocalPhotoSaver()
     # if we want to change later
