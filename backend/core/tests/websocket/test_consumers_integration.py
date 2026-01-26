@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 import jwt
 from django.conf import settings
 from core.websocket.consumers import WebSocketManager
-import json
 from unittest.mock import patch, AsyncMock
 
 
